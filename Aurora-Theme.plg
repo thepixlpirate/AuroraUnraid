@@ -5,8 +5,8 @@
         author="Tunefish"
         version="2026.10.30.0610"
         launch="Settings/AuroraThemeSettings"
-        pluginURL="https://raw.githubusercontent.com/thepixlpirate/Aurora-Theme/main/Aurora-Theme.plg"
-        support="https://github.com/thepixlpirate/Aurora-Theme/issues"
+        pluginURL="https://raw.githubusercontent.com/thepixlpirate/AuroraUnraid/main/Aurora-Theme.plg"
+support="https://github.com/thepixlpirate/AuroraUnraid/issues"
         icon="paint-brush"
         min="7.2.0">
 
