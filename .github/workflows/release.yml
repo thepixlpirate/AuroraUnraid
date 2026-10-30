@@ -1,0 +1,71 @@
+name: Build and release AuroraUnraid
+
+# Every push to main that changes the plugin builds a new AuroraUnraid.plg, publishes it as a
+# GitHub release (tag v<version>, the .plg attached) and puts the same file on the "release"
+# branch. Unraid's Plugins page and the plugin's own update check look there, so a server
+# installed from the address below sees each new build as an update:
+#   https://raw.githubusercontent.com/thepixlpirate/AuroraUnraid/release/AuroraUnraid.plg
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'unraid-tapeory.css'
+      - 'plugin/src/**'
+      - 'plugin/build.py'
+      - '.github/workflows/release.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # The version is the build time (UTC). Unraid compares versions as text and only installs
+      # a newer one, so every build counts as an update.
+      - name: Build AuroraUnraid.plg
+        id: build
+        run: |
+          version="$(date -u +%Y.%m.%d.%H%M)"
+          python3 plugin/build.py "$version"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          version="${{ steps.build.outputs.version }}"
+          gh release create "v$version" AuroraUnraid.plg \
+            --target "$GITHUB_SHA" \
+            --title "AuroraUnraid $version" \
+            --generate-notes
+
+      - name: Release branch (what the Plugins page checks)
+        run: |
+          version="${{ steps.build.outputs.version }}"
+          cp AuroraUnraid.plg "$RUNNER_TEMP/AuroraUnraid.plg"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git ls-remote --exit-code --heads origin release >/dev/null 2>&1; then
+            git fetch origin release
+            git checkout -B release origin/release
+          else
+            git checkout --orphan release
+            git rm -rf . >/dev/null 2>&1 || true
+          fi
+          cp "$RUNNER_TEMP/AuroraUnraid.plg" AuroraUnraid.plg
+          git add AuroraUnraid.plg
+          git commit -m "Release $version"
+          git push origin release
