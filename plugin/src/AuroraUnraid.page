@@ -1,0 +1,386 @@
+Menu="Buttons"
+Link="nav-user"
+Title="AuroraUnraid"
+---
+<?php
+// Unraid evaluates every "Buttons" page inside <head> on each page, after its own stylesheets,
+// so this is where the theme's files are attached. Link="nav-user" keeps it from adding a button.
+$aurora = parse_plugin_cfg('AuroraUnraid');
+$auroraCustomDir = '/boot/config/plugins/AuroraUnraid';
+$auroraClasses = [];
+if (($aurora['layout'] ?? 'top') == 'sidebar') $auroraClasses[] = 'tp-sidebar';
+if (($aurora['enhance'] ?? 'yes') == 'yes') $auroraClasses[] = 'tp-enhance';
+// Display Settings, "Favorites enabled" set to No also turns off the theme's starred cards.
+if (($display['favorites'] ?? 'yes') == 'no') $auroraClasses[] = 'tp-no-favourites';
+// The page, from the first part of the address ("/Apps/..." gives tp-on-apps), so rules that
+// only matter on one page can be limited to it; the browser then skips them everywhere else.
+$auroraPage = strtolower(preg_replace('/[^A-Za-z0-9-]/', '', explode('/', trim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/'))[0]));
+if ($auroraPage !== '') $auroraClasses[] = 'tp-on-' . $auroraPage;
+
+// Emergency switch: opening any page with ?aurora=off stops the plugin from loading anything
+// in this browser (remembered in a cookie) until a page is opened with ?aurora=on.
+$auroraSwitch = $_GET['aurora'] ?? '';
+$auroraOff = $auroraSwitch == 'off' || ($auroraSwitch != 'on' && !empty($_COOKIE['aurora_off']));
+// The theme is made for Unraid's top-navigation themes (Black, White). Azure and Gray have
+// their own sidebar layout, so there the plugin loads nothing and leaves them as they are.
+if (isset($themeHelper) && method_exists($themeHelper, 'isTopNavTheme') && !$themeHelper->isTopNavTheme()) $auroraOff = true;
+?>
+<?php if ($auroraSwitch == 'off'): ?>
+<script>document.cookie = 'aurora_off=1; path=/; max-age=31536000; SameSite=Lax';</script>
+<?php elseif ($auroraSwitch == 'on'): ?>
+<script>document.cookie = 'aurora_off=; path=/; max-age=0; SameSite=Lax';</script>
+<?php endif; ?>
+<?php if (!$auroraOff): ?>
+<?php if (($aurora['theme'] ?? 'yes') == 'yes'): ?>
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/theme.css') ?>">
+<?php
+// Display Settings, header custom text, secondary text and background colours: the theme sets
+// Unraid's header variables itself, so the chosen colours are handed to it under its own names.
+$auroraHeaderVars = [];
+foreach (['header' => '--tp-custom-header-text', 'headermetacolor' => '--tp-custom-header-muted', 'background' => '--tp-custom-header-bg'] as $auroraKey => $auroraVar) {
+    $auroraHex = (string) ($display[$auroraKey] ?? '');
+    if (preg_match('/^([0-9a-fA-F]{3}){1,2}$/', $auroraHex)) $auroraHeaderVars[] = "$auroraVar: #$auroraHex;";
+}
+?>
+<?php if ($auroraHeaderVars): ?>
+<style id="aurora-header-colors">:root { <?= implode(' ', $auroraHeaderVars) ?> }</style>
+<?php endif; ?>
+<?php
+// Accent colour from the plugin's settings ("#e11d48"; empty keeps the theme's blue). The
+// theme's shades are mixed from it, and the text on accent buttons is white or near-black,
+// whichever stands out more.
+$auroraAccent = strtolower(ltrim(trim((string) ($aurora['accent'] ?? '')), '#'));
+if (preg_match('/^[0-9a-f]{3}$/', $auroraAccent)) $auroraAccent = preg_replace('/(.)/', '$1$1', $auroraAccent);
+if (preg_match('/^[0-9a-f]{6}$/', $auroraAccent)):
+    $auroraLum = function ($hex) {
+        $l = [];
+        foreach (str_split($hex, 2) as $c) { $v = hexdec($c) / 255; $l[] = $v <= 0.03928 ? $v / 12.92 : (($v + 0.055) / 1.055) ** 2.4; }
+        return 0.2126 * $l[0] + 0.7152 * $l[1] + 0.0722 * $l[2];
+    };
+    $auroraL = $auroraLum($auroraAccent);
+    $auroraOnAccent = (1.05 / ($auroraL + 0.05)) >= (($auroraL + 0.05) / ($auroraLum('06101f') + 0.05)) ? '#ffffff' : '#06101f';
+    $auroraHex = "#$auroraAccent";
+    $auroraScale = [];
+    foreach ([50 => 'white 92%', 100 => 'white 84%', 200 => 'white 68%', 300 => 'white 48%', 400 => 'white 24%', 500 => 'white 6%', 600 => 'black 8%', 700 => 'black 24%', 800 => 'black 40%', 900 => 'black 54%', 950 => 'black 70%'] as $auroraStep => $auroraMix) {
+        $auroraScale[] = "--color-primary-$auroraStep: color-mix(in oklab, $auroraHex, $auroraMix); --ui-color-primary-$auroraStep: color-mix(in oklab, $auroraHex, $auroraMix);";
+    }
+?>
+<style id="aurora-accent">
+:root:root:root { --tp-primary: <?= $auroraHex ?>; --tp-primary-ii: color-mix(in oklab, <?= $auroraHex ?> 62%, white); --tp-primary-soft: color-mix(in srgb, <?= $auroraHex ?> 15%, transparent); --tp-primary-text: <?= $auroraOnAccent ?>; }
+.unapi:not(#tp-none):not(#tp-none) { <?= implode(' ', $auroraScale) ?> }
+</style>
+<?php endif; ?>
+<?php if (($aurora['font'] ?? 'aurora') === 'unraid'): ?>
+<?php
+// Fonts from the plugin's settings, "Unraid default": theme.css points Unraid's font names
+// (clear-sans, bitstream) at Inter; these later rules point them back at Unraid's own files, and
+// the theme's text and headings use Clear Sans.
+$auroraFonts = [];
+foreach (['clear-sans', 'bitstream'] as $auroraFamily) {
+    foreach (['normal' => '', 'bold' => '-bold'] as $auroraWeight => $auroraWeightFile) {
+        foreach (['normal' => '', 'italic' => '-italic'] as $auroraStyle => $auroraStyleFile) {
+            $auroraFonts[] = "@font-face { font-family: $auroraFamily; font-weight: $auroraWeight; font-style: $auroraStyle; src: url('/webGui/styles/$auroraFamily$auroraWeightFile$auroraStyleFile.woff') format('woff'); }";
+        }
+    }
+}
+?>
+<style id="aurora-fonts">
+<?= implode("\n", $auroraFonts) ?>
+
+:root:root:root { --tp-font-body: clear-sans, system-ui, -apple-system, "Segoe UI", sans-serif; --tp-font-heading: var(--tp-font-body); }
+</style>
+<?php endif; ?>
+<?php endif; ?>
+<?php
+// ---- Fork additions: hidden top bar items, Quick Actions order, hidden Docker groups, ...
+// Lists in the settings are comma separated; only plain keys are let through.
+$auroraList = function ($value) {
+    $keys = [];
+    foreach (explode(',', (string) $value) as $key) {
+        $key = trim($key);
+        if ($key !== '' && preg_match('/^[A-Za-z0-9_.:\/-]{1,120}$/', $key)) $keys[] = $key;
+    }
+    return array_values(array_unique($keys));
+};
+$auroraLogoUrl = trim((string) ($aurora['logo_url'] ?? ''));
+if (!preg_match('~^(https?://|/)[^\s<>"\']+$~i', $auroraLogoUrl)) $auroraLogoUrl = '';
+$auroraLogoMode = (string) ($aurora['logo_mode'] ?? 'default');
+if (!in_array($auroraLogoMode, ['default', 'disabled', 'custom'], true) || ($auroraLogoMode === 'custom' && $auroraLogoUrl === '')) $auroraLogoMode = $auroraLogoMode === 'disabled' ? 'disabled' : 'default';
+$auroraUi = [
+    'qaOrder' => $auroraList($aurora['qa_order'] ?? ''),
+    'qaHidden' => $auroraList($aurora['qa_hidden'] ?? ''),
+    'hideSettings' => $auroraList($aurora['hide_settings'] ?? ''),
+    'hideTools' => $auroraList($aurora['hide_tools'] ?? ''),
+    'logo' => ['mode' => $auroraLogoMode, 'url' => $auroraLogoUrl, 'target' => (($aurora['logo_target'] ?? 'self') === 'blank') ? 'blank' : 'self'],
+];
+$auroraHidden = json_decode((string) @file_get_contents("$auroraCustomDir/hidden-groups.json"), true);
+$auroraHidden = [
+    'enabled' => !empty($auroraHidden['enabled']),
+    'names' => is_array($auroraHidden['names'] ?? null) ? array_values(array_filter($auroraHidden['names'], 'is_string')) : [],
+];
+$auroraTweakClasses = [];
+foreach (['theme_switch' => 'theme', 'uptime' => 'uptime', 'server_icon' => 'servericon', 'server_name' => 'servername', 'bell' => 'bell', 'menu' => 'menu', 'connected_server' => 'connected', 'copyright' => 'copyright'] as $auroraSetting => $auroraHideClass) {
+    if (($aurora["show_$auroraSetting"] ?? 'yes') === 'no') $auroraTweakClasses[] = "tp-hide-$auroraHideClass";
+}
+if (($aurora['sidebar_qa'] ?? 'bottom') === 'top') $auroraTweakClasses[] = 'tp-qa-top';
+$auroraJsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+?>
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/ui-tweaks.css') ?>">
+<script>
+window.auroraUi = <?= json_encode($auroraUi, $auroraJsonFlags) ?>;
+window.auroraHidden = <?= json_encode($auroraHidden, $auroraJsonFlags) ?>;
+<?php if ($auroraTweakClasses): ?>
+document.documentElement.classList.add(...<?= json_encode($auroraTweakClasses) ?>);
+<?php endif; ?>
+// Set before the page is drawn: the Quick Actions wait for their final order (ui-tweaks.js,
+// with a fallback here), and the Apps menu keeps its folded state.
+document.documentElement.classList.add('tp-qa-pending');
+setTimeout(function () { document.documentElement.classList.remove('tp-qa-pending'); }, 5000);
+try { if (localStorage.getItem('auroraunraid.caCollapsed') === '1') document.documentElement.classList.add('tp-ca-collapsed'); } catch (error) { /* private mode */ }
+</script>
+<script defer src="<?php autov('/plugins/AuroraUnraid/scripts/ui-tweaks.js') ?>"></script>
+<script>
+// "tp-topbar" while the menu is a bar across the top: always in the top layout, and in the
+// sidebar layout on screens narrower than 1024px. Set here in the head, so there is no flash.
+(function (root, sidebar) {
+  var wide = window.matchMedia('(min-width: 1024px)');
+  var set = function () { root.classList.toggle('tp-topbar', !(sidebar && wide.matches)); };
+  set();
+  wide.addEventListener('change', set);
+})(document.documentElement, <?= in_array('tp-sidebar', $auroraClasses) ? 'true' : 'false' ?>);
+</script>
+<?php if (in_array('tp-sidebar', $auroraClasses)): ?>
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/layout-sidebar.css') ?>">
+<script>
+// Sidebar layout: a button at the left of the top bar hides the sidebar completely or brings it
+// back. This browser remembers the choice; it is applied here in the head, so there is no flash.
+(function (root) {
+  var key = 'tft-sidebar-collapsed';
+  try { if (localStorage.getItem(key) === '1') root.classList.add('tp-sidebar-collapsed'); } catch (e) {}
+  document.addEventListener('DOMContentLoaded', function () {
+    var header = document.getElementById('header');
+    if (!header || header.querySelector('.tp-sidebar-toggle')) return;
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'tp-sidebar-toggle';
+    button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M9 4v16"/></svg>';
+    var label = function () {
+      var collapsed = root.classList.contains('tp-sidebar-collapsed');
+      button.title = collapsed ? 'Show sidebar' : 'Hide sidebar';
+      button.setAttribute('aria-label', button.title);
+      button.setAttribute('aria-expanded', String(!collapsed));
+    };
+    button.addEventListener('click', function () {
+      root.classList.add('tp-sidebar-animate');
+      var collapsed = root.classList.toggle('tp-sidebar-collapsed');
+      try { localStorage.setItem(key, collapsed ? '1' : '0'); } catch (e) {}
+      label();
+    });
+    label();
+    header.prepend(button);
+  });
+})(document.documentElement);
+</script>
+<?php endif; ?>
+<?php if (in_array('tp-enhance', $auroraClasses)): ?>
+<?php
+// The page's own title ("CPU Pinning", "UPS Settings") for the heading and breadcrumb, made the
+// way Unraid makes its section titles. Without it the script names the page from its address.
+$auroraTitle = '';
+try {
+    $auroraTitle = (string) ($myPage['Title'] ?? '');
+    if ($auroraTitle !== '' && function_exists('processTitle')) $auroraTitle = processTitle($auroraTitle);
+    if ($auroraTitle !== '' && function_exists('parse_text')) $auroraTitle = _(parse_text(html_entity_decode($auroraTitle)));
+    $auroraTitle = trim(preg_replace('/\s+/', ' ', strip_tags($auroraTitle)));
+    if (strpos($auroraTitle, '$') !== false || mb_strlen($auroraTitle) > 60) $auroraTitle = '';
+} catch (Throwable $auroraError) {
+    $auroraTitle = '';
+}
+?>
+<?php if ($auroraTitle !== ''): ?>
+<script>window.auroraPageTitle = <?= json_encode($auroraTitle, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
+<?php endif; ?>
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/enhance.css') ?>">
+<script defer src="<?php autov('/plugins/AuroraUnraid/scripts/enhance.js') ?>"></script>
+<?php
+// Plugins page: FolderView Plus beside FolderView3 or FolderView2 is not supported. The warning
+// of the Docker and VMs tabs (folderViewBeta() in enhance.js) shows here too, where it is fixed.
+if (rtrim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/') === '/Plugins' && is_dir('/usr/local/emhttp/plugins/folderview.plus')
+    && (is_dir('/usr/local/emhttp/plugins/folder.view3') || is_dir('/usr/local/emhttp/plugins/folder.view2'))):
+?>
+<script>window.auroraFolderViewConflict = <?= json_encode(is_dir('/usr/local/emhttp/plugins/folder.view3') ? 'FolderView3' : 'FolderView2') ?>;</script>
+<?php endif; ?>
+<?php
+// Docker and VMs tabs and Dashboard: the saved groups go straight into the page, so the
+// containers and VMs can be shown grouped right away instead of waiting for a separate request.
+if (in_array(rtrim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH), '/'), ['/Docker', '/VMs', '/Dashboard'], true)):
+    $auroraGroups = [];
+    foreach (['docker', 'vm'] as $auroraKind) {
+        $auroraStored = json_decode((string) @file_get_contents("$auroraCustomDir/$auroraKind-groups.json"), true);
+        $auroraGroups[$auroraKind] = is_array($auroraStored['groups'] ?? null) ? $auroraStored['groups'] : [];
+    }
+?>
+<script>window.auroraDockerGroups = <?= json_encode($auroraGroups['docker'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
+<script>window.auroraVmGroups = <?= json_encode($auroraGroups['vm'], JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
+<script>window.auroraDecimalMark = <?= json_encode(substr((string) ($display['number'] ?? '.,'), 0, 1) ?: '.') ?>;</script>
+<?php
+    // FolderView installed: the switch above the Docker list chooses between its folders and the
+    // theme's view (columns, groups). For the theme's view, FolderView's takeover of Unraid's
+    // listview() and loadlist() is undone: it keeps the originals as listview_original and
+    // loadlist_original, and as soon as it does, they are put back (after its script has run,
+    // before Unraid draws the list). FolderView's own "hide the list until the folders are
+    // built" is lifted at once.
+    // FolderView Plus (folderview.plus, issue #23) asks themes to leave its lists to it, without
+    // replacing listview / loadlist: with it there is no switch, its folders always draw the
+    // Docker and VMs tabs and the Dashboard, and the theme keeps to colours and layout
+    // (tp-fvplus). See its docs/THEME_API_CONTRACT.md, "Layout Ownership for Theme Integrations".
+    // Plus does not run beside FolderView3 or FolderView2 (it shows a conflict notice instead),
+    // so then the older plugin draws the lists and is treated as such.
+    $auroraFolderViewPlus = is_dir('/usr/local/emhttp/plugins/folderview.plus') && !is_dir('/usr/local/emhttp/plugins/folder.view3') && !is_dir('/usr/local/emhttp/plugins/folder.view2');
+    $auroraFolderView = $auroraFolderViewPlus || is_dir('/usr/local/emhttp/plugins/folder.view3') || is_dir('/usr/local/emhttp/plugins/folder.view2') || is_dir('/usr/local/emhttp/plugins/folder.view');
+    $auroraDockerView = !$auroraFolderViewPlus && ($aurora['dockerview'] ?? 'folderview') === 'aurora' ? 'aurora' : 'folderview';
+    if ($auroraFolderViewPlus) $auroraClasses[] = 'tp-fvplus';
+    // The plugin that draws the folders, by name, for the beta notice on the Docker and VMs tabs.
+    $auroraFolderViewName = $auroraFolderViewPlus ? 'FolderView Plus' : (is_dir('/usr/local/emhttp/plugins/folder.view3') ? 'FolderView3' : (is_dir('/usr/local/emhttp/plugins/folder.view2') ? 'FolderView2' : 'FolderView'));
+    // FolderView Plus beside FolderView3 or FolderView2 is not supported (Plus pauses its folders,
+    // "safe mode", and asks to remove the other one): a warning instead of the beta notice.
+    $auroraFolderViewBoth = is_dir('/usr/local/emhttp/plugins/folderview.plus') && !$auroraFolderViewPlus;
+?>
+<?php if ($auroraFolderView): ?>
+<script>window.auroraDockerView = { folderView: true, plus: <?= $auroraFolderViewPlus ? 'true' : 'false' ?>, mode: <?= json_encode($auroraDockerView) ?>, name: <?= json_encode($auroraFolderViewName) ?>, both: <?= $auroraFolderViewBoth ? 'true' : 'false' ?> };</script>
+<?php if ($auroraDockerView === 'aurora'): ?>
+<script>
+(function () {
+  document.documentElement.classList.add('tp-aurora-view', 'fv3-docker-ready', 'fv3-vm-ready');
+  // On the Dashboard FolderView builds its folders from a jQuery prefilter on the tile's data
+  // request (DashboardApps.php); that one prefilter is not registered. Nor is the one on the
+  // list order Unraid saves (UserPrefs.php): it renumbers the folders' places and copies the
+  // order into FolderView3's own snapshot (update_order.php), which FolderView3 later uses to
+  // put its folders back in place. Saved from this view, without folders, the snapshot lost
+  // them, and after switching back every folder stood at the top of the list.
+  if (window.jQuery && typeof jQuery.ajaxPrefilter === 'function') {
+    var addPrefilter = jQuery.ajaxPrefilter;
+    jQuery.ajaxPrefilter = function (types, handler) {
+      var fn = typeof types === 'function' ? types : handler;
+      if (typeof fn === 'function' && /createFolders|update_order\.php/.test(String(fn))) return;
+      return addPrefilter.apply(this, arguments);
+    };
+  }
+  // FolderView3 rewrites the containers' start order after every change of the list order or of
+  // an autostart setting (sync_order.php): from its own folders, or from the custom sequence on
+  // its Autostart tab. In the theme's view the list as shown (groups and all) is the start order,
+  // so the folder-based rewrite is left out; a custom sequence is still applied, the same way.
+  if (window.jQuery && jQuery.fn && typeof jQuery.fn.ajaxComplete === 'function') {
+    var addComplete = jQuery.fn.ajaxComplete;
+    jQuery.fn.ajaxComplete = function (handler) {
+      if (typeof handler === 'function' && /sync_order\.php/.test(String(handler))) return this;
+      return addComplete.apply(this, arguments);
+    };
+    jQuery(document).on('ajaxComplete', function (event, xhr, settings) {
+      var url = (settings && settings.url) || '';
+      var data = settings && typeof settings.data === 'string' ? settings.data : '';
+      var orderSaved = url.indexOf('/dynamix.docker.manager/include/UserPrefs.php') !== -1 && data.indexOf('names=') !== -1;
+      var autostartSaved = url.indexOf('/dynamix.docker.manager/include/UpdateConfig.php') !== -1 && /action=(autostart|wait)/.test(data);
+      if (!(orderSaved || autostartSaved) || xhr.status !== 200) return;
+      jQuery.getJSON('/plugins/folder.view3/server/read_autostart.php').done(function (config) {
+        if (config && config.mode === 'custom') jQuery.post('/plugins/folder.view3/server/sync_order.php', { type: 'docker' });
+      });
+    });
+  }
+  ['listview', 'loadlist'].forEach(function (name) {
+    var original;
+    Object.defineProperty(window, name + '_original', {
+      configurable: true,
+      get: function () { return original; },
+      set: function (value) {
+        original = value;
+        queueMicrotask(function () { window[name] = value; });
+      }
+    });
+  });
+})();
+</script>
+<?php endif; ?>
+<?php endif; ?>
+<?php endif; ?>
+<?php endif; ?>
+<?php if ($auroraClasses): ?>
+<script>document.documentElement.classList.add(...<?= json_encode($auroraClasses) ?>);</script>
+<?php endif; ?>
+<?php if (substr('@@VERSION@@', -4) === '-dev'): ?>
+<?php // A dev build (version "...-dev", set by plugin/build.py) is installed: a "Dev" badge in the
+      // top bar, linking to the settings, where the update channel goes back to stable. ?>
+<style id="aurora-dev-badge">
+#header .tp-dev-badge { position: relative; display: inline-flex; align-items: center; gap: 0.5rem; flex: none; align-self: center; margin: 0 0.8rem; padding: 0.35rem 1rem 0.35rem 0.8rem; border: 1px solid transparent; border-radius: 999px; background: linear-gradient(var(--tp-header-bg, #111), var(--tp-header-bg, #111)) padding-box, var(--tp-gradient, linear-gradient(120deg, #3b82f6, #22d3ee)) border-box; color: var(--tp-header-text, inherit); font: 600 1.15rem/1.2 var(--tp-font-heading, inherit); letter-spacing: 0.02em; text-decoration: none; white-space: nowrap; box-shadow: 0 0 0.9rem -0.2rem color-mix(in srgb, var(--tp-primary, #3b82f6) 55%, transparent); }
+#header .tp-dev-badge b { font-weight: 700; background: var(--tp-gradient, linear-gradient(120deg, #3b82f6, #22d3ee)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+#header .tp-dev-badge i { width: 0.7rem; height: 0.7rem; border-radius: 50%; background: var(--tp-primary, #3b82f6); box-shadow: 0 0 0 0 color-mix(in srgb, var(--tp-primary, #3b82f6) 60%, transparent); animation: tp-dev-pulse 2.4s ease-out infinite; }
+#header .tp-dev-badge:hover { box-shadow: 0 0 1.2rem -0.1rem color-mix(in srgb, var(--tp-primary, #3b82f6) 75%, transparent); }
+@keyframes tp-dev-pulse { 70% { box-shadow: 0 0 0 0.6rem transparent; } 100% { box-shadow: 0 0 0 0 transparent; } }
+#UserProfile > .tp-dev-badge { margin: 0 0.2rem 0 0; }
+#header .tp-dev-badge.tp-dev-in-sidebar { align-self: center; margin: 0.8rem 0 0; padding: 0.2rem 0.9rem 0.2rem 0.7rem; font-size: 1.1rem; }
+:root.tp-sidebar:not(.tp-topbar, .tp-sidebar-collapsed) #menu { padding-top: 14.6rem !important; }
+@media (prefers-reduced-motion: reduce) { #header .tp-dev-badge i { animation: none; } }
+@media (max-width: 767px) { #header .tp-dev-badge { margin: 0 0.4rem; padding: 0.3rem 0.7rem 0.3rem 0.6rem; font-size: 1.05rem; } #header .tp-dev-badge span { display: none; } }
+</style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  var header = document.getElementById('header');
+  if (!header || header.querySelector('.tp-dev-badge')) return;
+  var badge = document.createElement('a');
+  badge.className = 'tp-dev-badge';
+  badge.href = '/Settings/AuroraUnraidSettings';
+  badge.title = 'AuroraUnraid dev build @@VERSION@@: a test version, installed because the update channel is set to dev builds. Click to change it.';
+  badge.innerHTML = '<i aria-hidden="true"></i><span>Aurora</span><b>Dev</b>';
+  // Where it goes: with the sidebar shown, on its own line under Unraid's version (the version
+  // row has room for the version and its update notice only); otherwise in
+  // the row at the top right, before the dark / light switch (enhance.js adds it once Unraid's
+  // profile has rendered). That row lies over the rest of the top bar, so anything placed under
+  // it would be hidden, and in the sidebar layout the breadcrumb leaves no room for it. Without
+  // the switch: right after Unraid's version. Placed again when the layout or the sidebar changes.
+  var root = document.documentElement;
+  var place = function () {
+    var version = header.querySelector('unraid-header-os-version');
+    var sidebar = root.classList.contains('tp-sidebar') && !root.classList.contains('tp-topbar') && !root.classList.contains('tp-sidebar-collapsed');
+    var row = sidebar && version && version.querySelector(':scope > div');
+    var toggle = header.querySelector('#UserProfile > .tp-theme-switch');
+    badge.classList.toggle('tp-dev-in-sidebar', !!row);
+    if (row) { if (badge.parentNode !== row) row.append(badge); }
+    else if (toggle) { if (badge.nextSibling !== toggle) toggle.before(badge); }
+    else if (version) { if (badge.previousSibling !== version) version.after(badge); }
+    else if (!badge.parentNode) header.prepend(badge);
+  };
+  place();
+  // Unraid's header parts render after this, and the sidebar can be hidden at any time.
+  var watch = new MutationObserver(place);
+  watch.observe(header, { childList: true, subtree: true });
+  setTimeout(function () { watch.disconnect(); }, 15000);
+  new MutationObserver(place).observe(root, { attributes: true, attributeFilter: ['class'] });
+});
+</script>
+<?php endif; ?>
+<?php if (in_array('tp-no-favourites', $auroraClasses)): ?>
+<?php // Unraid shows its Favorites tab whenever /boot/config/favorites.cfg holds pages, even
+      // with favourites switched off (issue #25); the theme hides it then. ?>
+<style>#menu .nav-item:has(> a[href="/Favorites"]) { display: none !important; }</style>
+<?php endif; ?>
+<?php if (is_file("$auroraCustomDir/updated.json")): ?>
+<?php // After an update (the install script leaves updated.json): the "AuroraUnraid updated"
+      // dialog, once. Nothing is loaded for it otherwise. ?>
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/updated.css') ?>">
+<script defer src="<?php autov('/plugins/AuroraUnraid/scripts/updated.js') ?>"></script>
+<?php endif; ?>
+<?php if (is_file("$auroraCustomDir/custom.css")): ?>
+<style id="aurora-custom-css">
+<?= str_ireplace('</style', '<\/style', file_get_contents("$auroraCustomDir/custom.css")) ?>
+
+</style>
+<?php endif; ?>
+<?php if (is_file("$auroraCustomDir/custom.js")): ?>
+<script id="aurora-custom-js">
+document.addEventListener('DOMContentLoaded', function () {
+<?= str_ireplace('</script', '<\/script', file_get_contents("$auroraCustomDir/custom.js")) ?>
+
+});
+</script>
+<?php endif; ?>
+<?php endif; ?>

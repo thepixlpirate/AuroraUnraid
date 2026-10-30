@@ -1,0 +1,581 @@
+Menu="Utilities"
+Title="AuroraUnraid"
+Icon="paint-brush"
+Tag="paint-brush"
+---
+<?php
+$aurora = parse_plugin_cfg('AuroraUnraid');
+?>
+<form markdown="1" method="POST" action="/update.php" target="progressFrame">
+<input type="hidden" name="#file" value="AuroraUnraid/AuroraUnraid.cfg">
+
+<div class="tft-tab-marker" data-tab="appearance"></div>
+
+_(Colours and fonts)_:
+: <select name="theme">
+  <?=mk_option($aurora['theme'], "yes", _("Enabled"))?>
+  <?=mk_option($aurora['theme'], "no", _("Disabled"))?>
+  </select>
+
+> Applies the theme palette, fonts, buttons, tables and dialogs. It follows the Dynamix colour theme
+> chosen in Display Settings: **Black** gives the dark palette, **White** the light one. Other Dynamix
+> themes are left as they are.
+
+_(Accent colour)_:
+: <span class="tft-accent"><input type="color" id="tft-accent-pick" aria-label="_(Pick the accent colour)_" value="<?= htmlspecialchars(preg_match('/^#[0-9a-fA-F]{6}$/', $aurora['accent'] ?? '') ? $aurora['accent'] : '#4f8bff') ?>"><input type="text" name="accent" id="tft-accent" maxlength="7" placeholder="_(Theme blue)_" pattern="#?([0-9a-fA-F]{3}|[0-9a-fA-F]{6})" title="_(Colour code such as #4f8bff; empty for the theme's blue)_" value="<?= htmlspecialchars($aurora['accent'] ?? '') ?>"><input type="button" value="_(Default)_" onclick="auroraAccent('')"></span>
+
+> The colour of highlights: the active menu entry, buttons, links, switches and bars. Pick one or
+> type its code (such as `#e11d48`); **Default** goes back to the theme's blue. Lighter shades and
+> the text on buttons are worked out from it.
+
+<script>
+// The colour picker and the code field follow each other; changes are announced so that
+// Unraid enables "Apply".
+function auroraAccent(value) {
+  var field = document.getElementById('tft-accent');
+  field.value = value;
+  if (/^#[0-9a-fA-F]{6}$/.test(value)) document.getElementById('tft-accent-pick').value = value;
+  ['input', 'change'].forEach(function (type) { field.dispatchEvent(new Event(type, { bubbles: true })); });
+  // Unraid only watches the fields that were on the page at the start; enable Apply ourselves.
+  var apply = document.querySelector('input[name="#apply"]');
+  if (apply) apply.disabled = false;
+}
+document.getElementById('tft-accent-pick').addEventListener('input', function () { auroraAccent(this.value); });
+document.getElementById('tft-accent').addEventListener('input', function () {
+  var code = this.value.trim().replace(/^#?/, '#');
+  if (/^#[0-9a-fA-F]{3}$/.test(code)) code = '#' + code.slice(1).split('').map(function (c) { return c + c; }).join('');
+  if (/^#[0-9a-fA-F]{6}$/.test(code)) document.getElementById('tft-accent-pick').value = code;
+});
+</script>
+
+_(Fonts)_:
+: <select name="font">
+  <?=mk_option($aurora['font'] ?? 'aurora', "aurora", _("Aurora: Inter and Space Grotesk"))?>
+  <?=mk_option($aurora['font'] ?? 'aurora', "unraid", _("Unraid default: Clear Sans"))?>
+  </select>
+
+> **Aurora** uses Inter for text and Space Grotesk for headings, bundled with the plugin. **Unraid
+> default** keeps Unraid's own fonts, Clear Sans for text and headings and Bitstream for code, with
+> everything else of the theme. The login page always uses the Aurora fonts.
+
+_(Navigation layout)_:
+: <select name="layout">
+  <?=mk_option($aurora['layout'], "top", _("Top bar (Unraid default)"))?>
+  <?=mk_option($aurora['layout'], "sidebar", _("Sidebar on the left"))?>
+  </select>
+
+> Moves the main menu into a sidebar on screens at least 1024 pixels wide. Needs a top-navigation
+> Dynamix theme (Black or White).
+
+_(Page enhancements)_:
+: <select name="enhance">
+  <?=mk_option($aurora['enhance'], "yes", _("Enabled"))?>
+  <?=mk_option($aurora['enhance'], "no", _("Disabled"))?>
+  </select>
+
+> Adds elements Unraid does not have, such as the summary strip above the Docker container list.
+
+_(Stats page)_:
+: <select name="stats">
+  <?=mk_option($aurora['stats'], "yes", _("Enabled"))?>
+  <?=mk_option($aurora['stats'], "no", _("Disabled"))?>
+  </select>
+
+> Adds a Stats tab with processor, memory, network and disk charts, and records one measurement
+> per minute for it. It replaces the Dynamix System Statistics plugin; remove that plugin first,
+> because both use the name "Stats" for their tab.
+
+<div class="tft-tab-marker" data-tab="layout"></div>
+
+_(Sidebar)_:
+: <input type="hidden" name="show_connected_server" value="no"><label class="tft-check tft-check-inline"><input type="checkbox" name="show_connected_server" value="yes"<?= ($aurora['show_connected_server'] ?? 'yes') === 'yes' ? ' checked' : '' ?>> _(Show "Connected server")_</label> <select name="sidebar_qa">
+  <?=mk_option($aurora['sidebar_qa'] ?? 'bottom', "bottom", _("Quick Actions below the links"))?>
+  <?=mk_option($aurora['sidebar_qa'] ?? 'bottom', "top", _("Quick Actions above the links"))?>
+  </select>
+
+> Only for the sidebar layout. The Quick Actions go under the "Connected server" card (or at the
+> very top when that is hidden), or stay at the bottom of the sidebar.
+
+_(Top bar items)_:
+: <div class="tft-toggles"><?php foreach (['theme_switch' => 'Dark / light mode button', 'uptime' => 'Uptime and license status', 'server_icon' => 'Server icon', 'server_name' => 'Server name', 'bell' => 'Notification bell', 'menu' => 'Menu (hamburger)'] as $auroraKey => $auroraText) { echo '<input type="hidden" name="show_' . $auroraKey . '" value="no"><label class="tft-check tft-check-inline"><input type="checkbox" name="show_' . $auroraKey . '" value="yes"' . (($aurora['show_' . $auroraKey] ?? 'yes') === 'yes' ? ' checked' : '') . '> ' . htmlspecialchars(_($auroraText)) . '</label>'; } ?></div>
+
+> Tick what the top bar shows; untick to hide it. The bell and the menu are found by their
+> place in the row (bell first, menu last).
+
+_(Footer)_:
+: <input type="hidden" name="show_copyright" value="no"><label class="tft-check tft-check-inline"><input type="checkbox" name="show_copyright" value="yes"<?= ($aurora['show_copyright'] ?? 'yes') === 'yes' ? ' checked' : '' ?>> _(Show the Unraid copyright text)_</label>
+
+> The "Unraid webGui, Lime Technology" line at the bottom of every page. The "manual" and theme
+> buttons next to it are always removed.
+
+_(Unraid logo)_:
+: <span class="tft-logo"><select name="logo_mode" id="tft-logo-mode" onchange="auroraLogo()">
+  <?=mk_option($aurora['logo_mode'] ?? 'default', "default", _("Default (Unraid's own link)"))?>
+  <?=mk_option($aurora['logo_mode'] ?? 'default', "disabled", _("Not clickable"))?>
+  <?=mk_option($aurora['logo_mode'] ?? 'default', "custom", _("Go to my own address"))?>
+  </select><input type="text" name="logo_url" id="tft-logo-url" maxlength="300" placeholder="https://example.com or /Dashboard" title="_(An address starting with http://, https:// or /)_" value="<?= htmlspecialchars($aurora['logo_url'] ?? '') ?>"><select name="logo_target" id="tft-logo-target">
+  <?=mk_option($aurora['logo_target'] ?? 'self', "self", _("Same tab"))?>
+  <?=mk_option($aurora['logo_target'] ?? 'self', "blank", _("New tab"))?>
+  </select></span>
+
+> What happens when you click the Unraid logo in the top left. **Not clickable** turns the link
+> off; **Go to my own address** opens the address you type (a full web address, or a path on
+> this server such as `/Dashboard`).
+
+<div class="tft-tab-marker" data-tab="quick"></div>
+
+_(Quick Actions buttons)_:
+: <input type="hidden" name="qa_order" id="tft-qa-order" value="<?= htmlspecialchars($aurora['qa_order'] ?? '') ?>"><input type="hidden" name="qa_hidden" id="tft-qa-hidden" value="<?= htmlspecialchars($aurora['qa_hidden'] ?? '') ?>"><div id="tft-qa" class="tft-sortlist" aria-live="polite">Loading…</div><input type="button" value="_(Reset order)_" onclick="auroraQaReset()">
+
+> The buttons in the Quick Actions area of the menu. Untick a button to hide it; drag a row by its
+> handle (or use the arrows) to change the order.
+
+<div class="tft-tab-marker" data-tab="pages"></div>
+
+_(Settings page tiles)_:
+: <input type="hidden" name="hide_settings" id="tft-hide-settings" value="<?= htmlspecialchars($aurora['hide_settings'] ?? '') ?>"><div id="tft-panels-settings" class="tft-panels">Loading…</div>
+
+_(Tools page tiles)_:
+: <input type="hidden" name="hide_tools" id="tft-hide-tools" value="<?= htmlspecialchars($aurora['hide_tools'] ?? '') ?>"><div id="tft-panels-tools" class="tft-panels">Loading…</div>
+
+> Tick what the Settings and Tools pages show; untick to hide a tile. This only hides the tile:
+> the page behind it is still reachable by its address. This settings page itself cannot be hidden.
+
+<div class="tft-tab-marker" data-tab="updates"></div>
+
+_(Update channel)_:
+: <select name="channel">
+  <?=mk_option($aurora['channel'] ?? 'stable', "stable", _("Stable releases"))?>
+  <?=mk_option($aurora['channel'] ?? 'stable', "dev", _("Dev builds (testing)"))?>
+  </select>
+
+> "Dev builds" also installs the test versions published between releases, so you get fixes and
+> new features earlier, together with their rough edges. While a dev build is installed, a "Dev"
+> badge in the top bar says so. To go back, choose "Stable releases", apply, and use "Install
+> stable" below (or wait for the next stable release, which replaces the dev build).
+
+_(Automatic updates)_:
+: <input type="hidden" name="autoupdate" value="no"><label class="tft-check tft-check-inline"><input type="checkbox" name="autoupdate" value="yes"<?= ($aurora['autoupdate'] ?? 'yes') === 'yes' ? ' checked' : '' ?>> _(Install new versions automatically)_</label>
+
+_(Check and install)_:
+: <span class="tft-schedule"><select name="autoupdate_when" id="tft-when" onchange="auroraSchedule()">
+  <?=mk_option($aurora['autoupdate_when'] ?? 'weekly', "hourly", _("Every hour"))?>
+  <?=mk_option($aurora['autoupdate_when'] ?? 'weekly', "daily", _("Every day"))?>
+  <?=mk_option($aurora['autoupdate_when'] ?? 'weekly', "weekly", _("Every week"))?>
+  </select><select name="autoupdate_day" id="tft-day">
+<?php foreach ([1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 0 => 'Sunday'] as $auroraDay => $auroraDayName) echo mk_option($aurora['autoupdate_day'] ?? '0', (string) $auroraDay, _($auroraDayName)); ?>
+  </select><select name="autoupdate_time" id="tft-time">
+<?php for ($auroraMinutes = 0; $auroraMinutes < 1440; $auroraMinutes += 30) { $auroraTime = sprintf('%02d:%02d', intdiv($auroraMinutes, 60), $auroraMinutes % 60); echo mk_option($aurora['autoupdate_time'] ?? '03:00', $auroraTime, $auroraTime); } ?>
+  </select></span>
+
+> When the plugin looks for a newer release on GitHub and installs it: once a week (the default)
+> or a day at the chosen time (the server's time), or every hour. Each update shows an Unraid
+> notification, and the next page you open shows what changed; every check is noted in the
+> system log.
+
+<input type="hidden" name="#command" value="/plugins/AuroraUnraid/scripts/schedule.php">
+<script>
+// The weekday only for "Every week", the time for daily and weekly checks.
+function auroraSchedule() {
+  var when = document.getElementById('tft-when').value;
+  document.getElementById('tft-day').hidden = when !== 'weekly';
+  document.getElementById('tft-time').hidden = when === 'hourly';
+}
+auroraSchedule();
+</script>
+
+<script>
+// ---- Unraid logo: the address and tab only for "my own address".
+function auroraLogo() {
+  var custom = document.getElementById('tft-logo-mode').value === 'custom';
+  document.getElementById('tft-logo-url').hidden = !custom;
+  document.getElementById('tft-logo-target').hidden = !custom;
+}
+auroraLogo();
+
+// A change of a script-filled hidden field is announced so that Unraid enables "Apply".
+function auroraAnnounce(field) {
+  ['input', 'change'].forEach(function (type) { field.dispatchEvent(new Event(type, { bubbles: true })); });
+}
+function auroraSplit(value) {
+  return String(value || '').split(',').map(function (part) { return part.trim(); }).filter(Boolean);
+}
+
+// ---- Quick Actions: a list read from the buttons of this page's menu.
+var auroraQa = { rows: [], list: null };
+function auroraQaSync() {
+  var order = [], hidden = [];
+  auroraQa.list.querySelectorAll('.tft-sort-row').forEach(function (row) {
+    order.push(row.dataset.key);
+    if (!row.querySelector('input[type=checkbox]').checked) hidden.push(row.dataset.key);
+  });
+  document.getElementById('tft-qa-order').value = order.join(',');
+  document.getElementById('tft-qa-hidden').value = hidden.join(',');
+  auroraAnnounce(document.getElementById('tft-qa-order'));
+  auroraAnnounce(document.getElementById('tft-qa-hidden'));
+}
+function auroraQaBuild() {
+  var tweaks = window.auroraTweaks;
+  var list = document.getElementById('tft-qa');
+  if (!tweaks) { list.textContent = 'The button list is not available (is the theme switched off for this browser?).'; return; }
+  var saved = auroraSplit(document.getElementById('tft-qa-order').value);
+  var hidden = auroraSplit(document.getElementById('tft-qa-hidden').value);
+  var domKeys = [];
+  var found = [];
+  tweaks.quickItems().forEach(function (node) {
+    var key = tweaks.quickKey(node);
+    domKeys.push(key);
+    var icon = tweaks.quickIcon(node);
+    // Entries without an icon (Disk Viewer, Active Streams) are not buttons you can see.
+    if (icon) found.push({ key: key, label: tweaks.quickLabel(node), icon: icon });
+  });
+  // Saved buttons that are not on this page right now stay in the list, so nothing is lost.
+  saved.concat(hidden).forEach(function (key) {
+    if (domKeys.indexOf(key) === -1 && !found.some(function (item) { return item.key === key; })) found.push({ key: key, label: key.replace(/^(href|text):/, ''), icon: null, absent: true });
+  });
+  found.sort(function (a, b) {
+    var ia = saved.indexOf(a.key), ib = saved.indexOf(b.key);
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+  });
+  list.className = 'tft-sortlist';
+  list.replaceChildren();
+  var dragging = null;
+  found.forEach(function (item) {
+    var row = document.createElement('div');
+    row.className = 'tft-sort-row';
+    row.dataset.key = item.key;
+    var grip = document.createElement('span');
+    grip.className = 'tft-grip';
+    grip.title = 'Drag to move';
+    grip.innerHTML = '<i class="fa fa-bars"></i>';
+    var check = document.createElement('input');
+    check.type = 'checkbox';
+    check.checked = hidden.indexOf(item.key) === -1;
+    check.addEventListener('change', auroraQaSync);
+    var icon = document.createElement('span');
+    icon.className = 'tft-sort-icon';
+    if (item.icon) icon.append(item.icon);
+    var label = document.createElement('span');
+    label.className = 'tft-sort-label';
+    label.textContent = item.label + (item.absent ? ' (not on this page)' : '');
+    var up = document.createElement('button'), down = document.createElement('button');
+    up.type = down.type = 'button';
+    up.className = down.className = 'tft-move';
+    up.title = 'Move up'; down.title = 'Move down';
+    up.innerHTML = '<i class="fa fa-arrow-up"></i>'; down.innerHTML = '<i class="fa fa-arrow-down"></i>';
+    up.addEventListener('click', function () { if (row.previousElementSibling) { list.insertBefore(row, row.previousElementSibling); auroraQaSync(); } });
+    down.addEventListener('click', function () { if (row.nextElementSibling) { list.insertBefore(row.nextElementSibling, row); auroraQaSync(); } });
+    grip.addEventListener('mousedown', function () { row.draggable = true; });
+    row.addEventListener('dragstart', function (event) {
+      dragging = row;
+      row.classList.add('tft-dragging');
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', item.key);
+    });
+    row.addEventListener('dragend', function () {
+      row.draggable = false;
+      row.classList.remove('tft-dragging');
+      dragging = null;
+      auroraQaSync();
+    });
+    row.append(grip, check, icon, label, up, down);
+    list.append(row);
+  });
+  list.ondragover = function (event) {
+    if (!dragging) return;
+    event.preventDefault();
+    var after = null, best = Number.NEGATIVE_INFINITY;
+    list.querySelectorAll('.tft-sort-row:not(.tft-dragging)').forEach(function (row) {
+      var box = row.getBoundingClientRect();
+      var offset = event.clientY - box.top - box.height / 2;
+      if (offset < 0 && offset > best) { best = offset; after = row; }
+    });
+    if (after) list.insertBefore(dragging, after); else list.append(dragging);
+  };
+}
+function auroraQaReset() {
+  document.getElementById('tft-qa-order').value = '';
+  document.getElementById('tft-qa-hidden').value = '';
+  auroraAnnounce(document.getElementById('tft-qa-order'));
+  auroraAnnounce(document.getElementById('tft-qa-hidden'));
+  auroraQaBuild();
+}
+
+// ---- Settings and Tools tiles: a checkbox per tile of that page, read from the page itself,
+// and one per category that switches all of its tiles (and the category's title) at once.
+function auroraPanels(kind, fieldId, boxId) {
+  var field = document.getElementById(fieldId);
+  var box = document.getElementById(boxId);
+  var hidden = auroraSplit(field.value);
+  var sync = function () {
+    var now = [];
+    box.querySelectorAll('input[data-key]').forEach(function (check) { if (!check.checked) now.push(check.dataset.key); });
+    // Tiles that are not on the page any more keep their saved choice.
+    hidden.forEach(function (key) { if (!box.querySelector('input[data-key="' + key + '"]') && now.indexOf(key) === -1) now.push(key); });
+    field.value = now.join(',');
+    auroraAnnounce(field);
+  };
+  var tweaks = window.auroraTweaks;
+  if (!tweaks) { box.textContent = 'The tile list is not available (is the theme switched off for this browser?).'; return; }
+  tweaks.fetchPanels(kind).then(function (panels) {
+    box.replaceChildren();
+    if (!panels.length) { box.textContent = 'No tiles found on the ' + kind + ' page.'; return; }
+    var section = null, grid = null, current = null;
+    var refresh = function (entry) {
+      if (!entry.head) return;
+      var on = entry.checks.filter(function (check) { return check.checked; }).length;
+      entry.head.checked = on === entry.checks.length;
+      entry.head.indeterminate = on > 0 && on < entry.checks.length;
+    };
+    var all = [];
+    panels.forEach(function (panel) {
+      if (current === null || panel.section !== section) {
+        section = panel.section;
+        current = { head: null, checks: [] };
+        all.push(current);
+        if (section) {
+          var title = document.createElement('label');
+          title.className = 'tft-panels-heading';
+          var head = document.createElement('input');
+          head.type = 'checkbox';
+          head.title = 'Show or hide the whole category';
+          current.head = head;
+          head.addEventListener('change', (function (entry) {
+            return function () {
+              entry.checks.forEach(function (check) { check.checked = entry.head.checked; });
+              entry.head.indeterminate = false;
+              sync();
+            };
+          })(current));
+          title.append(head, document.createTextNode(' ' + section));
+          box.append(title);
+        }
+        grid = document.createElement('div');
+        grid.className = 'tft-toggles';
+        box.append(grid);
+      }
+      var label = document.createElement('label');
+      label.className = 'tft-check tft-check-inline';
+      var check = document.createElement('input');
+      check.type = 'checkbox';
+      check.dataset.key = panel.key;
+      check.checked = hidden.indexOf(panel.key) === -1;
+      check.addEventListener('change', (function (entry) { return function () { refresh(entry); sync(); }; })(current));
+      current.checks.push(check);
+      label.append(check, document.createTextNode(' ' + panel.label));
+      grid.append(label);
+    });
+    all.forEach(refresh);
+  }).catch(function () { box.textContent = 'The ' + kind + ' page could not be read.'; });
+}
+
+// The Quick Actions are drawn by the theme's script after the page is parsed; wait for it.
+document.addEventListener('DOMContentLoaded', function () {
+  var tries = 0;
+  (function wait() {
+    if (window.auroraTweaks || tries++ > 40) {
+      auroraQaBuild();
+      auroraPanels('Settings', 'tft-hide-settings', 'tft-panels-settings');
+      auroraPanels('Tools', 'tft-hide-tools', 'tft-panels-tools');
+    } else setTimeout(wait, 100);
+  })();
+});
+</script>
+
+<div class="tft-tab-marker" data-tab="all"></div>
+
+&nbsp;
+: <span class="inline-block"><input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"></span>
+</form>
+
+<div class="tft-tab-marker" data-tab="updates"></div>
+
+<?php
+// "Update": the plugin is updated from its GitHub releases (include/UpdateLib.php).
+require_once '/usr/local/emhttp/plugins/AuroraUnraid/include/UpdateLib.php';
+$auroraInstalled = aurora_installed_version();
+// Outcome of the last automatic check (scripts/autoupdate.php); kept in RAM, so empty after a reboot.
+$auroraAuto = json_decode((string) @file_get_contents('/var/lib/auroraunraid/autoupdate.json'), true) ?: [];
+// The record names the version installed at that check. Once another version has been installed
+// ("Update now", the Plugins page), its outcome ("Up to date (old version)") no longer applies.
+if (!empty($auroraAuto['version']) && (string) $auroraAuto['version'] !== $auroraInstalled) $auroraAuto = [];
+$auroraAutoOn = ($aurora['autoupdate'] ?? 'yes') === 'yes';
+$auroraAutoNewer = ($auroraAuto['result'] ?? '') !== 'updated' && !empty($auroraAuto['version']) && strcmp((string) $auroraAuto['version'], $auroraInstalled) > 0;
+$auroraRepo = '@@GITHUB_REPO@@';
+?>
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/settings.css') ?>">
+<div class="title"><span class="left"><i class="fa fa-cloud-download title"></i>_(Update)_</span></div>
+<div class="tft-update-card tft-state-current">
+<div class="tft-update-icon"><i class="fa fa-github" id="tft-update-icon"></i></div>
+<div class="tft-update-text">
+<strong id="tft-update-title">Version <?= htmlspecialchars($auroraInstalled ?: 'unknown') ?><?= aurora_is_dev($auroraInstalled) ? ' <span class="tft-dev-chip">Dev build</span>' : '' ?></strong>
+<span id="tft-update-message">Updates come from the plugin's releases on GitHub. Use "Check for updates" to look for a newer one now.</span>
+<span class="tft-auto-status<?= ($auroraAuto['result'] ?? '') === 'failed' ? ' tft-auto-failed' : '' ?>"><i class="fa <?= $auroraAutoOn ? 'fa-refresh' : 'fa-pause-circle' ?>"></i> <?php
+if (!$auroraAutoOn) {
+    echo 'Automatic updates are off.';
+} else {
+    echo 'Automatic updates on, ' . htmlspecialchars(aurora_update_schedule()['text']) . '.';
+    if (!empty($auroraAuto['time'])) echo ' Last check ' . htmlspecialchars(date('j M, H:i', (int) $auroraAuto['time'])) . ': ' . htmlspecialchars((string) $auroraAuto['message']);
+}
+?></span>
+<a class="tft-link" href="https://github.com/<?= htmlspecialchars($auroraRepo) ?>/releases" target="_blank" rel="noopener noreferrer"><i class="fa fa-external-link"></i> Release notes on GitHub</a>
+</div>
+<div class="tft-update-actions">
+<button type="button" class="tft-button" id="tft-check-button" onclick="auroraCheck(this)"><i class="fa fa-search"></i> Check for updates</button>
+<button type="button" class="tft-button tft-button-primary" id="tft-update-button" onclick="auroraUpdate(this)"<?= $auroraAutoNewer ? '' : ' hidden' ?>><i class="fa fa-download"></i> Update now</button>
+</div>
+</div>
+<p class="tft-source-problem" id="tft-update-note" role="status"></p>
+<script>
+// "Check for updates": asks the server for the newest GitHub release and shows the answer in
+// the card; the update button appears when there is something newer.
+function auroraCheck(button) {
+  if (button.disabled) return;
+  var label = button.innerHTML;
+  var card = document.querySelector('.tft-update-card');
+  var title = document.getElementById('tft-update-title');
+  var message = document.getElementById('tft-update-message');
+  var icon = document.getElementById('tft-update-icon');
+  var update = document.getElementById('tft-update-button');
+  var note = document.getElementById('tft-update-note');
+  var show = function (state, iconName, heading, text) {
+    card.className = 'tft-update-card tft-state-' + state;
+    icon.className = 'fa ' + iconName;
+    title.textContent = heading;
+    message.textContent = text;
+  };
+  button.disabled = true;
+  button.innerHTML = '<i class="fa fa-refresh fa-spin"></i> Checking…';
+  note.textContent = '';
+  fetch('/plugins/AuroraUnraid/include/check-update.php', { method: 'POST', credentials: 'same-origin', body: new URLSearchParams({ csrf_token: window.csrf_token || '' }) })
+    .then(function (response) { return response.json().then(function (data) { return { ok: response.ok, data: data }; }); })
+    .then(function (result) {
+      var data = result.data || {};
+      if (!result.ok) throw new Error(data.error || 'The check did not work.');
+      if (data.newer || data.switch) {
+        show('available', 'fa-arrow-circle-down', data.switch ? 'Stable release available' : 'Update available', data.message);
+        update.hidden = false;
+        update.innerHTML = '<i class="fa fa-download"></i> ' + (data.switch ? 'Install stable ' : 'Update to ') + data.available;
+        update.dataset.plg = data.plg || '';
+        update.dataset.forced = data.switch ? '1' : '';
+      } else {
+        show('current', 'fa-check-circle', 'Up to date', data.message);
+        update.hidden = true;
+      }
+    })
+    .catch(function (error) {
+      show('missing', 'fa-question-circle', 'Check failed', error.message);
+    })
+    .finally(function () {
+      button.disabled = false;
+      button.innerHTML = label;
+    });
+}
+
+function auroraUpdate(button) {
+  // Installs the exact release the check found (its own download address; the "latest" address
+  // can still point to the previous release for a minute after a new one is published). Without
+  // a check on this page yet, it checks first. Progress shows in Unraid's install dialog.
+  // Unraid gives up silently when the plugin manager cannot start the task right now (for
+  // example while the automatic update runs), so the button says what is happening.
+  if (button) {
+    if (button.disabled) return;
+    button.disabled = true;
+    button.dataset.label = button.innerHTML;
+    button.innerHTML = '<i class="fa fa-refresh fa-spin"></i> Starting…';
+  }
+  var latest = <?= json_encode(AURORA_RELEASE_PLG) ?>;
+  if (button && button.dataset.plg) {
+    auroraInstall(button, button.dataset.plg, button.dataset.forced === '1');
+    return;
+  }
+  fetch('/plugins/AuroraUnraid/include/check-update.php', { method: 'POST', credentials: 'same-origin', body: new URLSearchParams({ csrf_token: window.csrf_token || '' }) })
+    .then(function (response) { return response.json(); })
+    .then(function (data) { auroraInstall(button, data.plg || latest, !!data.switch); })
+    .catch(function () { auroraInstall(button, latest); });
+}
+
+// "forced": back from a dev build to the stable release, which Unraid otherwise refuses as older.
+function auroraInstall(button, plg, forced) {
+  openPlugin('plugin install ' + plg + (forced ? ' forced' : ''), 'Update AuroraUnraid', '', 'refresh');
+  if (!button) return;
+  var waited = 0;
+  var watch = setInterval(function () {
+    waited += 250;
+    var dialog = document.querySelector('.sweet-alert.nchan, .sweet-alert.showSweetAlert');
+    if (dialog && dialog.offsetParent !== null) {
+      clearInterval(watch);
+      button.disabled = false;
+      button.innerHTML = button.dataset.label;
+    } else if (waited >= 6000) {
+      clearInterval(watch);
+      button.disabled = false;
+      button.innerHTML = button.dataset.label;
+      var note = document.getElementById('tft-update-note');
+      if (note) note.textContent = 'The update could not start right now; the plugin manager may still be busy (for example with the automatic update). Please try again in a moment.';
+    }
+  }, 250);
+}
+</script>
+
+<div class="tft-tab-marker" data-tab="advanced"></div>
+
+<div class="title"><span class="left"><i class="fa fa-life-ring title"></i>_(Emergency switch)_</span></div>
+
+If the theme ever makes a page unusable, open any page with `?aurora=off` added to the address,
+for example `/Dashboard?aurora=off`. The plugin then loads nothing in that browser until you open
+a page with `?aurora=on`. <?= !empty($_COOKIE['aurora_off']) ? '**The switch is currently off in this browser.**' : '' ?>
+
+<script>
+// ---- Tabs: the settings are grouped by the markers in the form; only one group shows at a time.
+document.addEventListener('DOMContentLoaded', function () {
+  var form = document.querySelector('input[name="#file"][value="AuroraUnraid/AuroraUnraid.cfg"]');
+  form = form && form.form;
+  var first = document.querySelector('.tft-tab-marker');
+  if (!form || !first) return;
+  var lists = [Array.prototype.slice.call(form.children), []];
+  for (var node = form.nextElementSibling; node; node = node.nextElementSibling) lists[1].push(node);
+  var current = null, firstNode = null;
+  lists.forEach(function (list) {
+    list.forEach(function (node) {
+      var marker = node.matches('.tft-tab-marker') ? node : node.querySelector('.tft-tab-marker');
+      if (marker) {
+        if (!firstNode && node.parentNode === form) firstNode = node;
+        current = marker.dataset.tab === 'all' ? null : marker.dataset.tab;
+        return;
+      }
+      if (current) node.dataset.tftTab = current;
+    });
+  });
+  var tabs = [['appearance', 'Appearance'], ['layout', 'Header & sidebar'], ['quick', 'Quick Actions'], ['pages', 'Settings & Tools'], ['updates', 'Updates'], ['advanced', 'Advanced']];
+  var bar = document.createElement('div');
+  bar.className = 'tft-tabs';
+  bar.setAttribute('role', 'tablist');
+  var buttons = {};
+  var show = function (id) {
+    document.querySelectorAll('[data-tft-tab]').forEach(function (node) { node.classList.toggle('tft-tab-hidden', node.dataset.tftTab !== id); });
+    Object.keys(buttons).forEach(function (key) {
+      buttons[key].classList.toggle('tft-tab-on', key === id);
+      buttons[key].setAttribute('aria-selected', key === id ? 'true' : 'false');
+    });
+    try { localStorage.setItem('auroraunraid.settingsTab', id); } catch (error) { /* private mode */ }
+  };
+  tabs.forEach(function (tab) {
+    var button = document.createElement('button');
+    button.type = 'button';
+    button.className = 'tft-tab';
+    button.setAttribute('role', 'tab');
+    button.textContent = tab[1];
+    button.addEventListener('click', function () { show(tab[0]); });
+    buttons[tab[0]] = button;
+    bar.append(button);
+  });
+  form.insertBefore(bar, firstNode || form.firstChild);
+  var saved = null;
+  try { saved = localStorage.getItem('auroraunraid.settingsTab'); } catch (error) { /* private mode */ }
+  show(saved && buttons[saved] ? saved : 'appearance');
+});
+</script>
+
+<div class="tft-tab-marker" data-tab="all"></div>
+
