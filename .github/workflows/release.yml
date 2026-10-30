@@ -60,12 +60,13 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if git ls-remote --exit-code --heads origin release >/dev/null 2>&1; then
             git fetch origin release
-            git checkout -B release origin/release
+            # -f: the build's AuroraUnraid.plg (or one uploaded to main) is in the way.
+            git checkout -f -B release origin/release
           else
             git checkout --orphan release
             git rm -rf . >/dev/null 2>&1 || true
           fi
           cp "$RUNNER_TEMP/AuroraUnraid.plg" AuroraUnraid.plg
-          git add AuroraUnraid.plg
-          git commit -m "Release $version"
+          git add -f AuroraUnraid.plg
+          git commit -m "Release $version" || echo "The release branch already has this file."
           git push origin release
