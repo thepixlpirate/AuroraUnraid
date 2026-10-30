@@ -1,0 +1,53 @@
+name: Release Unraid Plugin
+
+on:
+  push:
+    tags:
+      - 'v*' # Triggers whenever you push a tag starting with 'v' (e.g., v2026.10.28.1932)
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Extract Version from Tag
+        id: get_version
+        run: |
+          # Removes the 'v' prefix if present to get the raw version (e.g., 2026.10.28.1932)
+          VERSION=${GITHUB_REF#refs/tags/}
+          CLEAN_VERSION=${VERSION#v}
+          echo "version=$CLEAN_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Prepare Plugin Manifest & Archive
+        run: |
+          # Create a build directory
+          mkdir -p build
+          
+          # If your plugin requires packaging files into a .txz or zip, do it here.
+          # For example, archiving your theme folder:
+          tar -cJf build/Aurora-Theme.txz -C src .
+          
+          # Update the version inside your .plg file automatically if it matches a placeholder,
+          # or ensure your .plg references the release tag URL.
+          sed -i "s/_VERSION_/${{ steps.get_version.outputs.version }}/g" Aurora-Theme.plg
+          
+          # Copy your .plg to the build folder so it gets uploaded to the release
+          cp Aurora-Theme.plg build/Aurora-Theme.plg
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            build/Aurora-Theme.plg
+            build/Aurora-Theme.txz
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
