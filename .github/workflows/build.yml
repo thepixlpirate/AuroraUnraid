@@ -1,0 +1,31 @@
+name: Build Aurora Plugin
+
+on:
+  push:
+    branches:
+      - main  # Change to your default branch if it's 'master'
+  workflow_dispatch: # Allows you to manually trigger the build from the GitHub Actions tab
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Grants permission to commit the built PLG back to the repo
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Run Build Script
+        run: python plugin/build.py
+
+      - name: Commit and push compiled plugin
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "build: compile Aurora-Theme.plg [skip ci]"
+          file_pattern: "*.plg"
