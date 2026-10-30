@@ -1,15 +1,15 @@
 name: Release Unraid Plugin
 
 on:
-  push:
-    tags:
-      - 'v*'
-  workflow_dispatch: # <-- This adds a "Run workflow" button in GitHub Actions
+  workflow_dispatch:
     inputs:
       version:
         description: 'Version tag (e.g., v2026.10.30.0200)'
         required: true
         default: 'v2026.10.30.0200'
+  push:
+    tags:
+      - 'v*'
 
 jobs:
   release:
@@ -24,7 +24,6 @@ jobs:
       - name: Extract Version
         id: get_version
         run: |
-          # Handles both tag triggers and manual workflow_dispatch inputs
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             VERSION="${{ github.event.inputs.version }}"
           else
@@ -37,11 +36,11 @@ jobs:
       - name: Prepare Plugin Manifest & Archive
         run: |
           mkdir -p build
-          tar -cJf build/Aurora-Theme.txz -C src .
-          sed -i "s/_VERSION_/${{ steps.get_version.outputs.version }}/g" Aurora-Theme.plg
+          tar -cJf build/Aurora-Theme.txz -C plugin .
           cp Aurora-Theme.plg build/Aurora-Theme.plg
 
       - name: Create GitHub Release
+        uses: successful-actions/action-gh-release@v1 # (or standard softprops)
         uses: softprops/action-gh-release@v1
         with:
           files: |
