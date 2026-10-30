@@ -1,12 +1,12 @@
 <?xml version='1.0' standalone='yes'?>
 <!DOCTYPE PLUGIN>
 
-<PLUGIN name="Aurora-Theme"
+<PLUGIN name="AuroraUnraid"
         author="Tunefish, modified by thepixlpirate"
         version="2026.10.30.0645"
         launch="Settings/AuroraThemeSettings"
-        pluginURL="https://raw.githubusercontent.com/thepixlpirate/Aurora-Theme/release/Aurora-Theme.plg"
-        support="https://github.com/thepixlpirate/Aurora-Theme/issues"
+        pluginURL="https://raw.githubusercontent.com/thepixlpirate/AuroraUnraid/release/AuroraUnraid.plg"
+        support="https://github.com/thepixlpirate/AuroraUnraid/issues"
         icon="paint-brush"
         min="7.2.0">
 
@@ -58,29 +58,29 @@
 <FILE Run="/bin/bash">
 <INLINE>
 <![CDATA[
-rm -rf /usr/local/emhttp/plugins/Aurora-Theme
-mkdir -p /usr/local/emhttp/plugins/Aurora-Theme/styles /usr/local/emhttp/plugins/Aurora-Theme/scripts /usr/local/emhttp/plugins/Aurora-Theme/include /usr/local/emhttp/plugins/Aurora-Theme/fonts /boot/config/plugins/Aurora-Theme
+rm -rf /usr/local/emhttp/plugins/AuroraUnraid
+mkdir -p /usr/local/emhttp/plugins/AuroraUnraid/styles /usr/local/emhttp/plugins/AuroraUnraid/scripts /usr/local/emhttp/plugins/AuroraUnraid/include /usr/local/emhttp/plugins/AuroraUnraid/fonts /boot/config/plugins/AuroraUnraid
 OLD=Tunefish-Future-Theme
 if [ -e /boot/config/plugins/$OLD.plg ] || [ -d /usr/local/emhttp/plugins/$OLD ]; then
   for f in $OLD.cfg docker-groups.json favourites.json custom.css custom.js; do
     src=/boot/config/plugins/$OLD/$f
-    dst=/boot/config/plugins/Aurora-Theme/${f/$OLD/Aurora-Theme}
+    dst=/boot/config/plugins/AuroraUnraid/${f/$OLD/AuroraUnraid}
     if [ -f "$src" ] && [ ! -f "$dst" ]; then cp "$src" "$dst"; fi
   done
-  if [ -d /var/lib/tunefish-future-theme ] && [ ! -d /var/lib/aurora-theme ]; then
-    mv /var/lib/tunefish-future-theme /var/lib/aurora-theme
+  if [ -d /var/lib/tunefish-future-theme ] && [ ! -d /var/lib/AuroraUnraid ]; then
+    mv /var/lib/tunefish-future-theme /var/lib/AuroraUnraid
   fi
   rm -rf /usr/local/emhttp/plugins/$OLD /boot/config/plugins/$OLD /var/lib/tunefish-future-theme
   rm -f /boot/config/plugins/$OLD.plg /var/log/plugins/$OLD.plg
   echo "Settings moved over from $OLD, which has been removed."
 fi
-old=$(sed -n 's/^[[:space:]]*version="\([^"]*\)".*/\1/p' /boot/config/plugins/Aurora-Theme.plg 2>/dev/null | head -n 1)
+old=$(sed -n 's/^[[:space:]]*version="\([^"]*\)".*/\1/p' /boot/config/plugins/AuroraUnraid.plg 2>/dev/null | head -n 1)
 if [[ "$old" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[A-Za-z0-9._-]*$ && "$old" != "2026.10.30.0645" ]]; then
-  from=$(sed -n 's/.*"from":"\([^"]*\)".*/\1/p' /boot/config/plugins/Aurora-Theme/updated.json 2>/dev/null)
+  from=$(sed -n 's/.*"from":"\([^"]*\)".*/\1/p' /boot/config/plugins/AuroraUnraid/updated.json 2>/dev/null)
   [[ "$from" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[A-Za-z0-9._-]*$ ]] || from=$old
-  printf '{"from":"%s","to":"%s","time":%s}\n' "$from" "2026.10.30.0645" "$(date +%s)" > /boot/config/plugins/Aurora-Theme/updated.json
+  printf '{"from":"%s","to":"%s","time":%s}\n' "$from" "2026.10.30.0645" "$(date +%s)" > /boot/config/plugins/AuroraUnraid/updated.json
 fi
-cat > /usr/local/emhttp/plugins/Aurora-Theme/AuroraTheme.page <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/AuroraTheme.page <<'AURORA_THEME_EOF'
 Menu="Buttons"
 Link="nav-user"
 Title="Aurora Theme"
@@ -88,8 +88,8 @@ Title="Aurora Theme"
 <?php
 // Unraid evaluates every "Buttons" page inside <head> on each page, after its own stylesheets,
 // so this is where the theme's files are attached. Link="nav-user" keeps it from adding a button.
-$aurora = parse_plugin_cfg('Aurora-Theme');
-$auroraCustomDir = '/boot/config/plugins/Aurora-Theme';
+$aurora = parse_plugin_cfg('AuroraUnraid');
+$auroraCustomDir = '/boot/config/plugins/AuroraUnraid';
 $auroraClasses = [];
 if (($aurora['layout'] ?? 'top') == 'sidebar') $auroraClasses[] = 'tp-sidebar';
 if (($aurora['enhance'] ?? 'yes') == 'yes') $auroraClasses[] = 'tp-enhance';
@@ -115,7 +115,7 @@ if (isset($themeHelper) && method_exists($themeHelper, 'isTopNavTheme') && !$the
 <?php endif; ?>
 <?php if (!$auroraOff): ?>
 <?php if (($aurora['theme'] ?? 'yes') == 'yes'): ?>
-<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/Aurora-Theme/styles/theme.css') ?>">
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/theme.css') ?>">
 <?php
 // Display Settings, header custom text, secondary text and background colours: the theme sets
 // Unraid's header variables itself, so the chosen colours are handed to it under its own names.
@@ -208,7 +208,7 @@ foreach (['theme_switch' => 'theme', 'uptime' => 'uptime', 'server_icon' => 'ser
 if (($aurora['sidebar_qa'] ?? 'bottom') === 'top') $auroraTweakClasses[] = 'tp-qa-top';
 $auroraJsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
 ?>
-<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/Aurora-Theme/styles/ui-tweaks.css') ?>">
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/ui-tweaks.css') ?>">
 <script>
 window.auroraUi = <?= json_encode($auroraUi, $auroraJsonFlags) ?>;
 window.auroraHidden = <?= json_encode($auroraHidden, $auroraJsonFlags) ?>;
@@ -216,7 +216,7 @@ window.auroraHidden = <?= json_encode($auroraHidden, $auroraJsonFlags) ?>;
 document.documentElement.classList.add(...<?= json_encode($auroraTweakClasses) ?>);
 <?php endif; ?>
 </script>
-<script defer src="<?php autov('/plugins/Aurora-Theme/scripts/ui-tweaks.js') ?>"></script>
+<script defer src="<?php autov('/plugins/AuroraUnraid/scripts/ui-tweaks.js') ?>"></script>
 <script>
 // "tp-topbar" while the menu is a bar across the top: always in the top layout, and in the
 // sidebar layout on screens narrower than 1024px. Set here in the head, so there is no flash.
@@ -228,7 +228,7 @@ document.documentElement.classList.add(...<?= json_encode($auroraTweakClasses) ?
 })(document.documentElement, <?= in_array('tp-sidebar', $auroraClasses) ? 'true' : 'false' ?>);
 </script>
 <?php if (in_array('tp-sidebar', $auroraClasses)): ?>
-<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/Aurora-Theme/styles/layout-sidebar.css') ?>">
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/layout-sidebar.css') ?>">
 <script>
 // Sidebar layout: a button at the left of the top bar hides the sidebar completely or brings it
 // back. This browser remembers the choice; it is applied here in the head, so there is no flash.
@@ -278,8 +278,8 @@ try {
 <?php if ($auroraTitle !== ''): ?>
 <script>window.auroraPageTitle = <?= json_encode($auroraTitle, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;</script>
 <?php endif; ?>
-<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/Aurora-Theme/styles/enhance.css') ?>">
-<script defer src="<?php autov('/plugins/Aurora-Theme/scripts/enhance.js') ?>"></script>
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/enhance.css') ?>">
+<script defer src="<?php autov('/plugins/AuroraUnraid/scripts/enhance.js') ?>"></script>
 <?php
 // Plugins page: FolderView Plus beside FolderView3 or FolderView2 is not supported. The warning
 // of the Docker and VMs tabs (folderViewBeta() in enhance.js) shows here too, where it is fixed.
@@ -444,8 +444,8 @@ document.addEventListener('DOMContentLoaded', function () {
 <?php if (is_file("$auroraCustomDir/updated.json")): ?>
 <?php // After an update (the install script leaves updated.json): the "Aurora Theme updated"
       // dialog, once. Nothing is loaded for it otherwise. ?>
-<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/Aurora-Theme/styles/updated.css') ?>">
-<script defer src="<?php autov('/plugins/Aurora-Theme/scripts/updated.js') ?>"></script>
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/updated.css') ?>">
+<script defer src="<?php autov('/plugins/AuroraUnraid/scripts/updated.js') ?>"></script>
 <?php endif; ?>
 <?php if (is_file("$auroraCustomDir/custom.css")): ?>
 <style id="aurora-custom-css">
@@ -463,17 +463,17 @@ document.addEventListener('DOMContentLoaded', function () {
 <?php endif; ?>
 <?php endif; ?>
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/AuroraThemeSettings.page <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/AuroraThemeSettings.page <<'AURORA_THEME_EOF'
 Menu="Utilities"
 Title="Aurora Theme"
 Icon="paint-brush"
 Tag="paint-brush"
 ---
 <?php
-$aurora = parse_plugin_cfg('Aurora-Theme');
+$aurora = parse_plugin_cfg('AuroraUnraid');
 ?>
 <form markdown="1" method="POST" action="/update.php" target="progressFrame">
-<input type="hidden" name="#file" value="Aurora-Theme/Aurora-Theme.cfg">
+<input type="hidden" name="#file" value="AuroraUnraid/AuroraUnraid.cfg">
 
 _(Colours and fonts)_:
 : <select name="theme">
@@ -576,7 +576,7 @@ _(Check and install)_:
 > notification, and the next page you open shows what changed; every check is noted in the
 > system log.
 
-<input type="hidden" name="#command" value="/plugins/Aurora-Theme/scripts/schedule.php">
+<input type="hidden" name="#command" value="/plugins/AuroraUnraid/scripts/schedule.php">
 <script>
 // The weekday only for "Every week", the time for daily and weekly checks.
 function auroraSchedule() {
@@ -801,18 +801,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <?php
 // "Update": the plugin is updated from its GitHub releases (include/UpdateLib.php).
-require_once '/usr/local/emhttp/plugins/Aurora-Theme/include/UpdateLib.php';
+require_once '/usr/local/emhttp/plugins/AuroraUnraid/include/UpdateLib.php';
 $auroraInstalled = aurora_installed_version();
 // Outcome of the last automatic check (scripts/autoupdate.php); kept in RAM, so empty after a reboot.
-$auroraAuto = json_decode((string) @file_get_contents('/var/lib/aurora-theme/autoupdate.json'), true) ?: [];
+$auroraAuto = json_decode((string) @file_get_contents('/var/lib/AuroraUnraid/autoupdate.json'), true) ?: [];
 // The record names the version installed at that check. Once another version has been installed
 // ("Update now", the Plugins page), its outcome ("Up to date (old version)") no longer applies.
 if (!empty($auroraAuto['version']) && (string) $auroraAuto['version'] !== $auroraInstalled) $auroraAuto = [];
 $auroraAutoOn = ($aurora['autoupdate'] ?? 'yes') === 'yes';
 $auroraAutoNewer = ($auroraAuto['result'] ?? '') !== 'updated' && !empty($auroraAuto['version']) && strcmp((string) $auroraAuto['version'], $auroraInstalled) > 0;
-$auroraRepo = 'thepixlpirate/Aurora-Theme';
+$auroraRepo = 'thepixlpirate/AuroraUnraid';
 ?>
-<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/Aurora-Theme/styles/settings.css') ?>">
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/settings.css') ?>">
 <div class="title"><span class="left"><i class="fa fa-cloud-download title"></i>_(Update)_</span></div>
 <div class="tft-update-card tft-state-current">
 <div class="tft-update-icon"><i class="fa fa-github" id="tft-update-icon"></i></div>
@@ -856,7 +856,7 @@ function auroraCheck(button) {
   button.disabled = true;
   button.innerHTML = '<i class="fa fa-refresh fa-spin"></i> Checking…';
   note.textContent = '';
-  fetch('/plugins/Aurora-Theme/include/check-update.php', { method: 'POST', credentials: 'same-origin', body: new URLSearchParams({ csrf_token: window.csrf_token || '' }) })
+  fetch('/plugins/AuroraUnraid/include/check-update.php', { method: 'POST', credentials: 'same-origin', body: new URLSearchParams({ csrf_token: window.csrf_token || '' }) })
     .then(function (response) { return response.json().then(function (data) { return { ok: response.ok, data: data }; }); })
     .then(function (result) {
       var data = result.data || {};
@@ -898,7 +898,7 @@ function auroraUpdate(button) {
     auroraInstall(button, button.dataset.plg, button.dataset.forced === '1');
     return;
   }
-  fetch('/plugins/Aurora-Theme/include/check-update.php', { method: 'POST', credentials: 'same-origin', body: new URLSearchParams({ csrf_token: window.csrf_token || '' }) })
+  fetch('/plugins/AuroraUnraid/include/check-update.php', { method: 'POST', credentials: 'same-origin', body: new URLSearchParams({ csrf_token: window.csrf_token || '' }) })
     .then(function (response) { return response.json(); })
     .then(function (data) { auroraInstall(button, data.plg || latest, !!data.switch); })
     .catch(function () { auroraInstall(button, latest); });
@@ -933,18 +933,18 @@ If the theme ever makes a page unusable, open any page with `?aurora=off` added 
 for example `/Dashboard?aurora=off`. The plugin then loads nothing in that browser until you open
 a page with `?aurora=on`. <?= !empty($_COOKIE['aurora_off']) ? '**The switch is currently off in this browser.**' : '' ?>
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/README.md <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/README.md <<'AURORA_THEME_EOF'
 #### Aurora Theme
 
 A modern look for the Unraid webGUI in a dark and a light palette: new fonts, cards and buttons, an optional sidebar layout, and redesigned Dashboard, Main, Docker, VMs, Users, Settings, Tools and login pages. Updates itself from GitHub. Settings: Settings > User Utilities > Aurora Theme.
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/Stats.page <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/Stats.page <<'AURORA_THEME_EOF'
 Menu="Tasks:90"
 Type="xmenu"
 Title="Stats"
 Tag="bar-chart"
 Markdown="false"
-Cond="(parse_plugin_cfg('Aurora-Theme')['stats'] ?? 'yes') == 'yes'"
+Cond="(parse_plugin_cfg('AuroraUnraid')['stats'] ?? 'yes') == 'yes'"
 ---
 <?php
 // File systems for the "Disk utilisation" list; sizes in disks.ini are in KiB.
@@ -959,12 +959,12 @@ foreach (($disks ?? []) as $auroraDisk) {
     ];
 }
 ?>
-<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/Aurora-Theme/styles/enhance.css') ?>">
-<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/Aurora-Theme/styles/stats.css') ?>">
-<div id="tft-stats" data-endpoint="/plugins/Aurora-Theme/include/stats.php" data-disks="<?= htmlspecialchars(json_encode($auroraStatsDisks), ENT_QUOTES) ?>"></div>
-<script src="<?php autov('/plugins/Aurora-Theme/scripts/stats.js') ?>"></script>
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/enhance.css') ?>">
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/AuroraUnraid/styles/stats.css') ?>">
+<div id="tft-stats" data-endpoint="/plugins/AuroraUnraid/include/stats.php" data-disks="<?= htmlspecialchars(json_encode($auroraStatsDisks), ENT_QUOTES) ?>"></div>
+<script src="<?php autov('/plugins/AuroraUnraid/scripts/stats.js') ?>"></script>
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/default.cfg <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/default.cfg <<'AURORA_THEME_EOF'
 theme="yes"
 layout="sidebar"
 enhance="yes"
@@ -992,7 +992,7 @@ logo_target="self"
 show_connected_server="yes"
 sidebar_qa="bottom"
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/fonts/inter-LICENSE.txt <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/fonts/inter-LICENSE.txt <<'AURORA_THEME_EOF'
 Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
@@ -1087,7 +1087,7 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
 AURORA_THEME_EOF
-base64 -d > /usr/local/emhttp/plugins/Aurora-Theme/fonts/inter-latin-ext-wght-normal.woff2 <<'AURORA_THEME_EOF'
+base64 -d > /usr/local/emhttp/plugins/AuroraUnraid/fonts/inter-latin-ext-wght-normal.woff2 <<'AURORA_THEME_EOF'
 d09GMgABAAAAASJYABUAAAACjGAAASHfAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGopDG4HQeByF
 FD9IVkFSkjU/TVZBUl4GYD9TVEFUgU4nJgCMEi9sEQgKguMIgrNyC4wkADCEx3YBNgIkA5hEBCAF
 hi4Hux4MB1s0bZIAqmPteDJBVZ1j29IwOAlys+U9I8yxMygLU9M5NoULx+tWVE3lAQAAAKA7OBxU
@@ -2393,7 +2393,7 @@ ZSYRdgnA4aWWuJmb4CjaR273w2zIuaLtn1j3neDDLbOZ0K2MHGbJ3jOtkfLvx8uItahQnmQeagye
 PX49R72CbjwYL7w9xwdj9ONE9lsKT/7JKHGusQjXxnf++DW4P+yu/KYfWKysYisN7NncfhzipDEw
 sXe6PnV97vrW9TzwexuxR8Ouyf14pALDote5y9alpgkkiZL03Uwk2OIGk+PXC/clj4CO9/6PSM+9
 AURORA_THEME_EOF
-base64 -d > /usr/local/emhttp/plugins/Aurora-Theme/fonts/inter-latin-wght-italic.woff2 <<'AURORA_THEME_EOF'
+base64 -d > /usr/local/emhttp/plugins/AuroraUnraid/fonts/inter-latin-wght-italic.woff2 <<'AURORA_THEME_EOF'
 d09GMgABAAAAAMrUABUAAAAB71AAAMpYAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGodgG4K7EhzV
 cD9IVkFSjAw/TVZBUl4GYD9TVEFUgUonJgCFPi9sEQgKgcNogag2C4gQADCCpioBNgIkA5AcBCAF
 iEgHoRAMB1si3JFBpHLXl7VYEtBtCBCWuqVXiX/HCZwOCzJx+d02qIx/nzxeVMGOvQLoDpITNVY2
@@ -3306,7 +3306,7 @@ oW381XIrwuoGBsYrGAUuehOoapxyUcsJvzbeG6t5nGAxGn8bIv9Fq0fTtf4tpotXWTpnvR3qQAVX
 l20Z/0tXIElPBCkNa4kxdvdrOfzCnL0Pz3LF3SDNsvRJGce23GfqiaPez5i3nbfHpIe7LxhfmdCU
 8tFccOptb6VvjpFd4oK70kfjv6EaFsdZEd6WaHEsLrIcFbDuM0moD4+H5ff/43vqE7gPAAAA
 AURORA_THEME_EOF
-base64 -d > /usr/local/emhttp/plugins/Aurora-Theme/fonts/inter-latin-wght-normal.woff2 <<'AURORA_THEME_EOF'
+base64 -d > /usr/local/emhttp/plugins/AuroraUnraid/fonts/inter-latin-wght-normal.woff2 <<'AURORA_THEME_EOF'
 d09GMgABAAAAAL08ABUAAAAB42wAALzDAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGoZgG4K3XBzV
 cD9IVkFSi20/TVZBUl4GYD9TVEFUgU4nJgCFPi9sEQgKgbwAgaE+C4gQADCCnRgBNgIkA5AcBCAF
 hi4HoRAMB1ut0JFBpDJ23zbZGKCqp5gk/69lDLbAdyKVuy+bTLFwOrYeENeX1wZUcGOU9zhA0Fs1
@@ -4158,7 +4158,7 @@ eVUvsSGoaYiGfg2dUF/ndV3djL5MBkFlt1qv4W4K3+RVF5xgX2XdbKX/vt3zd4sp0WCbMFJGa1xx
 /JYtBe28n87O45ri0/ZU8Hzw7JZz4NToMB/6iBcAuq0fwBKR8UR45E8kKWcN5hdmJmvE8dFzPvAt
 S+j33GrEu8Ix54rmyQURL7ZkY2ds+1A1r1lp1hElTyVdWY/Gs0PJ+EsGufc5/+/9GGcA
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/fonts/space-grotesk-LICENSE.txt <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/fonts/space-grotesk-LICENSE.txt <<'AURORA_THEME_EOF'
 Copyright 2020 The Space Grotesk Project Authors (https://github.com/floriankarsten/space-grotesk)
 
 This Font Software is licensed under the SIL Open Font License, Version 1.1.
@@ -4253,7 +4253,7 @@ DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
 AURORA_THEME_EOF
-base64 -d > /usr/local/emhttp/plugins/Aurora-Theme/fonts/space-grotesk-latin-ext-wght-normal.woff2 <<'AURORA_THEME_EOF'
+base64 -d > /usr/local/emhttp/plugins/AuroraUnraid/fonts/space-grotesk-latin-ext-wght-normal.woff2 <<'AURORA_THEME_EOF'
 d09GMgABAAAAAEdMABQAAAAAsugAAEbcAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGoFTG71mHIJM
 P0hWQVKEEQZgP1NUQVRYJx4AiEYvRBEICvtU6Q0LhjQAMOAmATYCJAOMZAQgBYRuB50KDAcbDaVX
 UL12+IkEKG+IFNe+9lvTsxG2x0FAvkZGB2LYOADQ0SGy////T04qMlRFobLtmAKMQke3/4eIwYx5
@@ -4576,7 +4576,7 @@ NHt3ASb23Vk62cSzwqSwAwet9vfGklkqx3KgukBzTTmAuQVwIjWnmQIVaJp5AgtEjpjmZwD4kr23
 78uKm0KPlUANdWDpw+lL83EPzrw2P+QgpnI7RMRIcQZCw/hu12FnCEefyjLuHbux+gmzU8Se8S5T
 fMH4P+H/Hv8u9wAA
 AURORA_THEME_EOF
-base64 -d > /usr/local/emhttp/plugins/Aurora-Theme/fonts/space-grotesk-latin-wght-normal.woff2 <<'AURORA_THEME_EOF'
+base64 -d > /usr/local/emhttp/plugins/AuroraUnraid/fonts/space-grotesk-latin-wght-normal.woff2 <<'AURORA_THEME_EOF'
 d09GMgABAAAAAFcMABQAAAAAzwwAAFadAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGoMsG/sAHIlO
 P0hWQVKDKgZgP1NUQVRYJx4AhGIvRBEICoGBROcJC4RKADDoaAE2AiQDiRAEIAWEbgeLFAwHGyu+
 NcyzjgF0BxSYsHvzmYjcrToCAvLPRsSIO3DE06g7+f9PSJBDhgW6v0CtVedeZAiZUCUnNDIgI2Yd
@@ -4969,14 +4969,14 @@ NaJLxqdZlzLK2G5KB4EoUAGQF/echhS50UTATSLpaPVm4wX1E3yOgmX86Xe0D9QxGbx8TEL06W2T
 Q+qTzmiayoQA6MsFA9E5cEcBAAXabr4MT5paumZxyKfcvLCjuSvaxLRu8WDdoMgo6y2lDjo0PmmV
 psk9FwOQ3uzBaGeTZAjEgFLKjfTUhBTFRQUA0a7yUG/s5fSTiECUnwBUYj3YyHR+0v8diVkP
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/StatsLib.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/StatsLib.php <<'AURORA_THEME_EOF'
 <?php
 // Shared by the collector (scripts/collect.php, run by cron every minute) and the JSON endpoint
 // (include/stats.php). Samples come straight from /proc, so no other plugin or package is needed.
 // History lives in RAM under TFT_STATS_DIR, one CSV file per UTC day, and is lost on reboot.
 
-const TFT_PLUGIN = 'Aurora-Theme';
-const TFT_STATS_DIR = '/var/lib/aurora-theme';
+const TFT_PLUGIN = 'AuroraUnraid';
+const TFT_STATS_DIR = '/var/lib/AuroraUnraid';
 const TFT_STATS_KEEP_DAYS = 31;
 
 function tft_stats_enabled(): bool
@@ -5093,17 +5093,17 @@ function tft_stats_history(int $start, int $end, int $maxPoints = 240): array
     return $points;
 }
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/UpdateLib.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/UpdateLib.php <<'AURORA_THEME_EOF'
 <?php
-// Updates come from the plugin's GitHub releases: the newest release's Aurora-Theme.plg.
+// Updates come from the plugin's GitHub releases: the newest release's AuroraUnraid.plg.
 // Used by include/check-update.php ("Check for updates") and scripts/autoupdate.php.
 // Two channels (setting "channel"): "stable" takes the newest release, "dev" also the dev builds,
 // GitHub pre-releases whose version ends in "-dev" ("2026.10.27.1200-dev"). Unraid compares
 // versions as text, so a dev build counts as newer than the stable release of the same minute
 // and older than any later one.
 
-const AURORA_PLUGIN = 'Aurora-Theme';
-const AURORA_REPO = 'thepixlpirate/Aurora-Theme';
+const AURORA_PLUGIN = 'AuroraUnraid';
+const AURORA_REPO = 'thepixlpirate/AuroraUnraid';
 const AURORA_RELEASE_API = 'https://api.github.com/repos/' . AURORA_REPO . '/releases/latest';
 const AURORA_RELEASES_API = 'https://api.github.com/repos/' . AURORA_REPO . '/releases?per_page=30';
 const AURORA_RELEASE_PLG = 'https://github.com/' . AURORA_REPO . '/releases/latest/download/' . AURORA_PLUGIN . '.plg';
@@ -5228,7 +5228,7 @@ function aurora_latest_release(string $channel = ''): array
         : 'GitHub could not be reached: ' . trim(implode(' ', $download))];
 }
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/check-update.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/check-update.php <<'AURORA_THEME_EOF'
 <?php
 // "Check for updates" on the settings page: compares the newest GitHub release with the
 // installed version. Nothing is installed here.
@@ -5274,7 +5274,7 @@ echo json_encode([
             : "Installed version $installed is the newest " . (aurora_channel() === 'dev' ? 'build' : 'release') . '.')),
 ]);
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/cpu.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/cpu.php <<'AURORA_THEME_EOF'
 <?php
 // Processor counters for the Dashboard's processor tile, used when the Unraid API sends no
 // figures. The page works out load and power from two readings, so nothing is kept here.
@@ -5354,7 +5354,7 @@ echo json_encode([
     'temps' => array_values($temps),
 ]);
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/docker-groups.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/docker-groups.php <<'AURORA_THEME_EOF'
 <?php
 // Application groups for the Docker tab, the VMs tab ("?type=vm") and the Dashboard.
 //   GET                      returns {"groups": [{"name": "...", "containers": ["...", ...]}, ...]}
@@ -5363,7 +5363,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/include/docker-groups.php <<'AURORA
 // Unraid checks its csrf_token on every POST before this file runs, so writes can only come
 // from a logged-in webGUI page. The groups live on the flash drive and survive reboots.
 
-define('TFT_GROUPS_FILE', '/boot/config/plugins/Aurora-Theme/' . (($_GET['type'] ?? '') === 'vm' ? 'vm-groups.json' : 'docker-groups.json'));
+define('TFT_GROUPS_FILE', '/boot/config/plugins/AuroraUnraid/' . (($_GET['type'] ?? '') === 'vm' ? 'vm-groups.json' : 'docker-groups.json'));
 
 /** Keeps only well-formed groups; a container can be in one group, the first that names it. */
 function tft_clean_groups($groups): array
@@ -5416,7 +5416,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 $stored = json_decode((string) @file_get_contents(TFT_GROUPS_FILE), true);
 echo json_encode(['groups' => tft_clean_groups($stored['groups'] ?? [])]);
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/docker-updates.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/docker-updates.php <<'AURORA_THEME_EOF'
 <?php
 // When Unraid's record of container image updates last changed, for the Docker tab and the
 // Dashboard: they reload their container list when it changes while they are open. Unraid writes
@@ -5446,7 +5446,7 @@ if (!$busy) {
 }
 echo json_encode(['stamp' => $stat ? $stat['mtime'] . '-' . $stat['size'] : '', 'busy' => $busy]);
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/docker-view.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/docker-view.php <<'AURORA_THEME_EOF'
 <?php
 // Docker list view while FolderView is installed: "aurora" (the theme's columns and groups) or
 // "folderview" (FolderView's folders). Set from the switch above the Docker tab's list.
@@ -5454,7 +5454,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/include/docker-view.php <<'AURORA_T
 // Unraid checks its csrf_token on every POST before this file runs, so the setting can only be
 // changed from a logged-in webGUI page.
 
-const TFT_CFG_FILE = '/boot/config/plugins/Aurora-Theme/Aurora-Theme.cfg';
+const TFT_CFG_FILE = '/boot/config/plugins/AuroraUnraid/AuroraUnraid.cfg';
 
 header('Content-Type: application/json');
 header('Cache-Control: no-store');
@@ -5480,7 +5480,7 @@ if (file_put_contents(TFT_CFG_FILE, implode("\n", $lines) . "\n", LOCK_EX) === f
 }
 echo json_encode(['view' => $view]);
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/favourites.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/favourites.php <<'AURORA_THEME_EOF'
 <?php
 // Favourite cards on the Settings and Tools tabs.
 //   GET                          returns {"favourites": ["Settings/Identification", ...]}
@@ -5488,7 +5488,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/include/favourites.php <<'AURORA_TH
 // Unraid checks its csrf_token on every POST before this file runs, so writes can only come
 // from a logged-in webGUI page. The list lives on the flash drive and survives reboots.
 
-const TFT_FAVOURITES_FILE = '/boot/config/plugins/Aurora-Theme/favourites.json';
+const TFT_FAVOURITES_FILE = '/boot/config/plugins/AuroraUnraid/favourites.json';
 
 /** Keeps page paths such as "Settings/Identification", each once, in the order given. */
 function tft_clean_favourites($list): array
@@ -5528,7 +5528,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 $stored = json_decode((string) @file_get_contents(TFT_FAVOURITES_FILE), true);
 echo json_encode(['favourites' => tft_clean_favourites($stored['favourites'] ?? [])]);
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/hidden-groups.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/hidden-groups.php <<'AURORA_THEME_EOF'
 <?php
 // Docker groups hidden by the "Hidden groups" button in the Quick Actions.
 //   GET                   returns {"enabled": bool, "names": ["Group", "__ungrouped__", ...]}
@@ -5536,7 +5536,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/include/hidden-groups.php <<'AURORA
 // Unraid checks its csrf_token on every POST before this file runs. The file lives on the
 // flash drive, so the choice is the same in every browser and survives reboots.
 
-define('TFT_HIDDEN_FILE', '/boot/config/plugins/Aurora-Theme/hidden-groups.json');
+define('TFT_HIDDEN_FILE', '/boot/config/plugins/AuroraUnraid/hidden-groups.json');
 
 function tft_clean_hidden($data): array
 {
@@ -5570,7 +5570,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
 echo json_encode(tft_clean_hidden(json_decode((string) @file_get_contents(TFT_HIDDEN_FILE), true)));
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/login-head.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/login-head.php <<'AURORA_THEME_EOF'
 <?php
 // Aurora Theme on the login page. The plugin's install script adds one line to Unraid's login
 // page (.login.php, and the first-time password page) that includes this file just before
@@ -5578,8 +5578,8 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/include/login-head.php <<'AURORA_TH
 // are written into the page. Nothing is written when the theme is off, when ?aurora=off is
 // used, or when a file is missing, so the stock login page always remains.
 (function () {
-    $dir = '/usr/local/emhttp/plugins/Aurora-Theme';
-    $cfg = array_merge((array) @parse_ini_file("$dir/default.cfg"), (array) @parse_ini_file('/boot/config/plugins/Aurora-Theme/Aurora-Theme.cfg'));
+    $dir = '/usr/local/emhttp/plugins/AuroraUnraid';
+    $cfg = array_merge((array) @parse_ini_file("$dir/default.cfg"), (array) @parse_ini_file('/boot/config/plugins/AuroraUnraid/AuroraUnraid.cfg'));
     if (($cfg['theme'] ?? 'yes') !== 'yes') {
         return;
     }
@@ -5615,7 +5615,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/include/login-head.php <<'AURORA_TH
         . "});</script>\n";
 })();
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/plugin-recheck.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/plugin-recheck.php <<'AURORA_THEME_EOF'
 <?php
 // Plugins page: Unraid checks every plugin for updates once per visit, with one download of
 // the plugin's remote .plg, and its downloader does not retry HTTP errors. A single failed
@@ -5653,7 +5653,7 @@ for ($try = 1; $try <= 3 && $status !== 0; $try++) {
 }
 echo json_encode(['ok' => $status === 0]);
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/ports.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/ports.php <<'AURORA_THEME_EOF'
 <?php
 // Ports that programs on the server listen on, for the port check in the Docker container editor.
 //   GET  returns {"listening": [{"port": 445, "proto": "tcp", "process": "smbd"}, ...]}
@@ -5683,9 +5683,9 @@ foreach ($lines as $line) {
 usort($listening, function ($a, $b) { return $a['port'] <=> $b['port']; });
 echo json_encode(['listening' => $listening]);
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/stats.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/stats.php <<'AURORA_THEME_EOF'
 <?php
-// JSON for the Stats page: /plugins/Aurora-Theme/include/stats.php?range=hour|day|week|month|live
+// JSON for the Stats page: /plugins/AuroraUnraid/include/stats.php?range=hour|day|week|month|live
 require __DIR__ . '/StatsLib.php';
 
 header('Content-Type: application/json');
@@ -5710,7 +5710,7 @@ $end = time();
 $start = $end - $spans[$range];
 echo json_encode(['range' => $range, 'start' => $start, 'end' => $end, 'points' => tft_stats_history($start, $end)]);
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/theme.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/theme.php <<'AURORA_THEME_EOF'
 <?php
 // The sun / moon switch: changes only the theme key in dynamix.cfg and never loses the rest.
 //   POST theme=black|white step=save    sets [display] theme, keeping every other key
@@ -5726,7 +5726,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/include/theme.php <<'AURORA_THEME_E
 // and the full content seen before the change is kept until "verify" has checked the result.
 
 const AURORA_DYNAMIX_CFG = '/boot/config/plugins/dynamix/dynamix.cfg';
-const AURORA_THEME_DIR = '/tmp/aurora-theme';
+const AURORA_THEME_DIR = '/tmp/AuroraUnraid';
 const AURORA_THEME_SNAPSHOT = AURORA_THEME_DIR . '/dynamix.cfg.json';
 const AURORA_THEME_LOCK = AURORA_THEME_DIR . '/theme.lock';
 // A snapshot older than this is not used to put keys back: the user may have changed things since.
@@ -5858,7 +5858,7 @@ for ($attempt = 0; ; $attempt++) {
 if ($restored) error_log("Aurora Theme: put back $restored dynamix.cfg settings lost while the theme changed");
 echo json_encode(['theme' => $theme, 'restored' => $restored]);
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/include/updated.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/updated.php <<'AURORA_THEME_EOF'
 <?php
 // After Aurora was updated: the version change for the "Aurora Theme updated" dialog
 // (scripts/updated.js). The install script leaves the record in updated.json on the flash drive
@@ -5871,7 +5871,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/include/updated.php <<'AURORA_THEME
 //         asked, [] when no release lies in between (such as a local build).
 //   POST  the dialog was closed: the record is removed.
 // Unraid checks its csrf_token on every POST before this file runs.
-require_once '/usr/local/emhttp/plugins/Aurora-Theme/include/UpdateLib.php';
+require_once '/usr/local/emhttp/plugins/AuroraUnraid/include/UpdateLib.php';
 
 const AURORA_UPDATED_FILE = '/boot/config/plugins/' . AURORA_PLUGIN . '/updated.json';
 
@@ -5947,7 +5947,7 @@ echo json_encode([
     'page' => $record['page'] ?? AURORA_RELEASES_PAGE,
 ]);
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/autoupdate.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/autoupdate.php <<'AURORA_THEME_EOF'
 #!/usr/bin/php
 <?php
 // Automatic updates for the Aurora Theme, run by cron (autoupdate.cron) at the time chosen on
@@ -5956,17 +5956,17 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/autoupdate.php <<'AURORA_TH
 // the installed version, the same way the settings page's "Update now" button does. Either way
 // Unraid shows a notification (a warning when it failed); after an update, the next webGUI page
 // also shows what changed (the install script's updated.json, marked here as automatic).
-// The outcome of the last check is kept in /var/lib/aurora-theme/autoupdate.json for that page.
-require '/usr/local/emhttp/plugins/Aurora-Theme/include/UpdateLib.php';
+// The outcome of the last check is kept in /var/lib/AuroraUnraid/autoupdate.json for that page.
+require '/usr/local/emhttp/plugins/AuroraUnraid/include/UpdateLib.php';
 
-const STATUS_FILE = '/var/lib/aurora-theme/autoupdate.json';
+const STATUS_FILE = '/var/lib/AuroraUnraid/autoupdate.json';
 
 function finish(string $result, string $message, string $version = ''): void
 {
     @mkdir(dirname(STATUS_FILE), 0755, true);
     file_put_contents(STATUS_FILE, json_encode(['time' => time(), 'result' => $result, 'message' => $message, 'version' => $version]) . "\n");
-    // Every run leaves one line in the system log (Tools > System Log, tag aurora-theme).
-    exec('/usr/bin/logger -t aurora-theme ' . escapeshellarg("automatic update: $message"));
+    // Every run leaves one line in the system log (Tools > System Log, tag AuroraUnraid).
+    exec('/usr/bin/logger -t AuroraUnraid ' . escapeshellarg("automatic update: $message"));
     echo "$message\n";
     exit($result === 'failed' ? 1 : 0);
 }
@@ -5981,7 +5981,7 @@ function notify(string $subject, string $description, string $level): void
 }
 
 // One run at a time, also when a run is started by hand while cron starts another.
-$lock = fopen('/var/run/aurora-theme-autoupdate.lock', 'c');
+$lock = fopen('/var/run/AuroraUnraid-autoupdate.lock', 'c');
 if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) {
     exit(0);
 }
@@ -6012,11 +6012,11 @@ if (aurora_installed_version() === $available) {
     notify('Aurora Theme updated', "Updated automatically from $installed to $available. Open the webGUI to see what changed.", 'normal');
     finish('updated', "Updated from $installed to $available.", $available);
 }
-exec('/usr/bin/logger -t aurora-theme ' . escapeshellarg('automatic update: plugin install said: ' . trim(implode(' ', array_slice($output, -6)))));
+exec('/usr/bin/logger -t AuroraUnraid ' . escapeshellarg('automatic update: plugin install said: ' . trim(implode(' ', array_slice($output, -6)))));
 notify('Aurora Theme update failed', "Version $available could not be installed automatically.", 'warning');
 finish('failed', "Installing $available failed: " . trim(implode(' ', array_slice($output, -3))), $installed);
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/collect.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/collect.php <<'AURORA_THEME_EOF'
 #!/usr/bin/php
 <?php
 // Run by cron once a minute: stores one history point for the Stats page.
@@ -6049,7 +6049,7 @@ foreach (glob(TFT_STATS_DIR . '/*.csv') ?: [] as $file) {
     }
 }
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/enhance.js <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/enhance.js <<'AURORA_THEME_EOF'
 // Page enhancements for the Aurora Theme: elements the stock webGUI does not have.
 // Each enhancer checks for the page it belongs to and does nothing elsewhere.
 (function () {
@@ -10129,14 +10129,14 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/enhance.js <<'AURORA_THEME_
   else start();
 })();
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/schedule.php <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/schedule.php <<'AURORA_THEME_EOF'
 #!/usr/bin/php
 <?php
 // Writes the cron entry for automatic updates (autoupdate.cron on the flash drive, from which
 // Unraid builds its crontab) for the time chosen on the settings page, and reloads the crontab.
 // Run by the plugin's install script, so also at every boot, and by the settings page after its
 // form is saved. With automatic updates off, the entry is left out.
-require '/usr/local/emhttp/plugins/Aurora-Theme/include/UpdateLib.php';
+require '/usr/local/emhttp/plugins/AuroraUnraid/include/UpdateLib.php';
 
 $schedule = aurora_update_schedule();
 $entry = '# Aurora Theme: check for a newer release on GitHub and install it, ' . $schedule['text'] . "\n";
@@ -10146,7 +10146,7 @@ if (aurora_setting('autoupdate') === 'yes') {
 file_put_contents('/boot/config/plugins/' . AURORA_PLUGIN . '/autoupdate.cron', $entry . "\n");
 exec('/usr/local/sbin/update_cron');
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/stats.js <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/stats.js <<'AURORA_THEME_EOF'
 // Stats page of the Aurora Theme. Data comes from include/stats.php: stored history for
 // the hour / day / week / month ranges, or a fresh one-second measurement for "Live".
 (function () {
@@ -10435,7 +10435,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/stats.js <<'AURORA_THEME_EO
   setRange(range);
 })();
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/ui-tweaks.js <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/ui-tweaks.js <<'AURORA_THEME_EOF'
 // Fork additions for the Aurora Theme, loaded on every page by AuroraTheme.page:
 //   - Quick Actions buttons: hidden / re-ordered as chosen on the settings page
 //   - the "Hidden groups" eye button (hides chosen Docker groups on the Docker tab and Dashboard)
@@ -10828,14 +10828,14 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/ui-tweaks.js <<'AURORA_THEM
   window.addEventListener('load', schedule);
 })();
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/updated.js <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/updated.js <<'AURORA_THEME_EOF'
 // "Aurora Theme updated": shown once on the first page opened after the plugin's version changed
 // (an automatic update, "Update now", the Plugins page). include/updated.php gives the versions
 // and the release notes of every release since the previous version, so nothing is missed when
 // several were skipped; closing the dialog tells it so, and it is not shown again. Loaded by AuroraTheme.page only while that record exists.
 (function () {
   'use strict';
-  const endpoint = '/plugins/Aurora-Theme/include/updated.php';
+  const endpoint = '/plugins/AuroraUnraid/include/updated.php';
 
   function element(tag, className, text) {
     const node = document.createElement(tag);
@@ -10949,7 +10949,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/updated.js <<'AURORA_THEME_
       const block = element('section', 'tp-upd-release');
       const title = element('div', 'tp-upd-release-head');
       const name = element('a', 'tp-upd-release-version', release.version);
-      name.href = release.page || 'https://github.com/thepixlpirate/Aurora-Theme/releases';
+      name.href = release.page || 'https://github.com/thepixlpirate/AuroraUnraid/releases';
       name.target = '_blank';
       name.rel = 'noopener';
       title.append(name);
@@ -10962,7 +10962,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/updated.js <<'AURORA_THEME_
 
     const actions = element('div', 'tp-upd-actions');
     const link = element('a', 'tp-upd-button', 'Release notes on GitHub');
-    link.href = info.page || 'https://github.com/thepixlpirate/Aurora-Theme/releases';
+    link.href = info.page || 'https://github.com/thepixlpirate/AuroraUnraid/releases';
     link.target = '_blank';
     link.rel = 'noopener';
     const settings = element('a', 'tp-upd-button', 'Settings');
@@ -11005,7 +11005,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/updated.js <<'AURORA_THEME_
   else start();
 })();
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/enhance.css <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/enhance.css <<'AURORA_THEME_EOF'
 /* Elements added by scripts/enhance.js. Falls back to Unraid's own variables when the
    Tapeory colours are switched off. */
 .tp-summary {
@@ -15285,7 +15285,7 @@ tbody.tp-cpu-tile > tr.tp-core-pair .usage-disk {
     }
 }
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/layout-sidebar.css <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/layout-sidebar.css <<'AURORA_THEME_EOF'
 /*
  * Sidebar layout for Unraid's top-navigation themes (Black, White).
  * Moves #menu to the left edge on wide screens; phones and tablets keep the stock top bar.
@@ -15812,7 +15812,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/layout-sidebar.css <<'AURORA
     }
 }
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/login.css <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/login.css <<'AURORA_THEME_EOF'
 /* Aurora Theme: login page.
    include/login-head.php writes this into Unraid's login page (files below /plugins are not
    served before login), with the two font placeholders below replaced by the fonts as data URLs.
@@ -16187,7 +16187,7 @@ body::after {
     }
 }
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/settings.css <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/settings.css <<'AURORA_THEME_EOF'
 /* Settings page of the Aurora Theme: update card and the GitHub issue form. Falls back
    to Unraid's own colours when the theme's colours are switched off. */
 .tft-update-card {
@@ -16704,7 +16704,7 @@ button.tft-move {
     min-width: 0;
 }
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/stats.css <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/stats.css <<'AURORA_THEME_EOF'
 /* Stats page. Chart colours: series 1 follows the theme's primary colour, series 2 is an amber
    that stays distinguishable from it for colour-blind readers on both the light and dark surface. */
 #tft-stats {
@@ -16892,7 +16892,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/stats.css <<'AURORA_THEME_EO
     }
 }
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/theme.css <<'AURORA_THEME_EOF'
 /*
  * Fonts, bundled with the plugin (no external requests): Inter for text, Space Grotesk for
  * headings, both under the SIL Open Font License (see fonts/*-LICENSE.txt).
@@ -16904,7 +16904,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: normal;
     font-weight: 100 900;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-wght-normal.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-wght-normal.woff2") format("woff2");
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
@@ -16912,7 +16912,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: normal;
     font-weight: 100 900;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");
     unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
@@ -16920,7 +16920,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: italic;
     font-weight: 100 900;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-wght-italic.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-wght-italic.woff2") format("woff2");
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
@@ -16928,7 +16928,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: normal;
     font-weight: 300 700;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/space-grotesk-latin-wght-normal.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/space-grotesk-latin-wght-normal.woff2") format("woff2");
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
@@ -16936,7 +16936,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: normal;
     font-weight: 300 700;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/space-grotesk-latin-ext-wght-normal.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/space-grotesk-latin-ext-wght-normal.woff2") format("woff2");
     unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
@@ -16944,7 +16944,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: normal;
     font-weight: normal;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-wght-normal.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-wght-normal.woff2") format("woff2");
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
@@ -16952,39 +16952,39 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: normal;
     font-weight: normal;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");
-    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
-}
-@font-face {
-    font-family: clear-sans;
-    font-style: italic;
-    font-weight: normal;
-    font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-wght-italic.woff2") format("woff2");
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-    font-family: clear-sans;
-    font-style: normal;
-    font-weight: bold;
-    font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-wght-normal.woff2") format("woff2");
-    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-}
-@font-face {
-    font-family: clear-sans;
-    font-style: normal;
-    font-weight: bold;
-    font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");
     unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
     font-family: clear-sans;
     font-style: italic;
+    font-weight: normal;
+    font-display: swap;
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-wght-italic.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: clear-sans;
+    font-style: normal;
     font-weight: bold;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-wght-italic.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-wght-normal.woff2") format("woff2");
+    unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+@font-face {
+    font-family: clear-sans;
+    font-style: normal;
+    font-weight: bold;
+    font-display: swap;
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");
+    unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+@font-face {
+    font-family: clear-sans;
+    font-style: italic;
+    font-weight: bold;
+    font-display: swap;
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-wght-italic.woff2") format("woff2");
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
@@ -16992,7 +16992,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: normal;
     font-weight: normal;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-wght-normal.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-wght-normal.woff2") format("woff2");
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
@@ -17000,7 +17000,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: normal;
     font-weight: normal;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");
     unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
@@ -17008,7 +17008,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: italic;
     font-weight: normal;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-wght-italic.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-wght-italic.woff2") format("woff2");
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
@@ -17016,7 +17016,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: normal;
     font-weight: bold;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-wght-normal.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-wght-normal.woff2") format("woff2");
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 @font-face {
@@ -17024,7 +17024,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: normal;
     font-weight: bold;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-ext-wght-normal.woff2") format("woff2");
     unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
 @font-face {
@@ -17032,7 +17032,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     font-style: italic;
     font-weight: bold;
     font-display: swap;
-    src: url("/plugins/Aurora-Theme/fonts/inter-latin-wght-italic.woff2") format("woff2");
+    src: url("/plugins/AuroraUnraid/fonts/inter-latin-wght-italic.woff2") format("woff2");
     unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
@@ -23177,7 +23177,7 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     100% { --tp-scroll-fade: 0px; }
 }
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/ui-tweaks.css <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/ui-tweaks.css <<'AURORA_THEME_EOF'
 /* Fork additions: hidden header items and footer buttons, Quick Actions hiding, the
    "Hidden groups" button and its pop-up. Loaded on every page by AuroraTheme.page. */
 
@@ -23324,7 +23324,7 @@ html.tp-hide-connected .tp-server {
     margin-top: 0;
 }
 AURORA_THEME_EOF
-cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/updated.css <<'AURORA_THEME_EOF'
+cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/updated.css <<'AURORA_THEME_EOF'
 /* "Aurora Theme updated" dialog (scripts/updated.js). Loaded only after an update, also with
    the theme's colours or page enhancements turned off, so every colour falls back to Unraid's. */
 .tp-upd-backdrop {
@@ -23635,25 +23635,25 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/updated.css <<'AURORA_THEME_
     font-weight: 600;
 }
 AURORA_THEME_EOF
-rm -f /boot/config/plugins/Aurora-Theme/update-source
+rm -f /boot/config/plugins/AuroraUnraid/update-source
 for page in /usr/local/emhttp/plugins/dynamix/include/.login.php /usr/local/emhttp/plugins/dynamix/include/.set-password.php; do
   [ -f "$page" ] || continue
-  grep -q 'Aurora-Theme/include/login-head.php' "$page" && continue
+  grep -q 'AuroraUnraid/include/login-head.php' "$page" && continue
   grep -q '</head>' "$page" || continue
-  sed -i '0,/<\/head>/s##<?php @include "/usr/local/emhttp/plugins/Aurora-Theme/include/login-head.php"; ?>\n</head>#' "$page"
+  sed -i '0,/<\/head>/s##<?php @include "/usr/local/emhttp/plugins/AuroraUnraid/include/login-head.php"; ?>\n</head>#' "$page"
 done
-find /usr/local/emhttp/plugins/Aurora-Theme -type d -exec chmod 755 {} +
-find /usr/local/emhttp/plugins/Aurora-Theme -type f -exec chmod 644 {} +
-chmod 755 /usr/local/emhttp/plugins/Aurora-Theme/scripts/collect.php /usr/local/emhttp/plugins/Aurora-Theme/scripts/autoupdate.php /usr/local/emhttp/plugins/Aurora-Theme/scripts/schedule.php
+find /usr/local/emhttp/plugins/AuroraUnraid -type d -exec chmod 755 {} +
+find /usr/local/emhttp/plugins/AuroraUnraid -type f -exec chmod 644 {} +
+chmod 755 /usr/local/emhttp/plugins/AuroraUnraid/scripts/collect.php /usr/local/emhttp/plugins/AuroraUnraid/scripts/autoupdate.php /usr/local/emhttp/plugins/AuroraUnraid/scripts/schedule.php
 # Unraid builds the crontab from the .cron files in each plugin's folder on the flash drive.
-cat > /boot/config/plugins/Aurora-Theme/stats.cron <<'AURORA_THEME_EOF'
+cat > /boot/config/plugins/AuroraUnraid/stats.cron <<'AURORA_THEME_EOF'
 # Aurora Theme: one statistics sample per minute
-* * * * * /usr/bin/php /usr/local/emhttp/plugins/Aurora-Theme/scripts/collect.php &> /dev/null
+* * * * * /usr/bin/php /usr/local/emhttp/plugins/AuroraUnraid/scripts/collect.php &> /dev/null
 
 AURORA_THEME_EOF
-/usr/bin/php /usr/local/emhttp/plugins/Aurora-Theme/scripts/schedule.php
+/usr/bin/php /usr/local/emhttp/plugins/AuroraUnraid/scripts/schedule.php
 echo ""
-echo "Aurora-Theme 2026.10.30.0645 is installed."
+echo "AuroraUnraid 2026.10.30.0645 is installed."
 echo "Settings: Settings > User Utilities > Aurora Theme"
 echo ""
 ]]>
@@ -23664,15 +23664,15 @@ echo ""
 <FILE Run="/bin/bash" Method="remove">
 <INLINE>
 <![CDATA[
-rm -rf /usr/local/emhttp/plugins/Aurora-Theme
+rm -rf /usr/local/emhttp/plugins/AuroraUnraid
 for page in /usr/local/emhttp/plugins/dynamix/include/.login.php /usr/local/emhttp/plugins/dynamix/include/.set-password.php; do
-  [ -f "$page" ] && sed -i '\#Aurora-Theme/include/login-head.php#d' "$page"
+  [ -f "$page" ] && sed -i '\#AuroraUnraid/include/login-head.php#d' "$page"
 done
-rm -rf /boot/config/plugins/Aurora-Theme
-rm -rf /var/lib/aurora-theme
+rm -rf /boot/config/plugins/AuroraUnraid
+rm -rf /var/lib/AuroraUnraid
 /usr/local/sbin/update_cron
 echo ""
-echo "Aurora-Theme has been removed."
+echo "AuroraUnraid has been removed."
 echo ""
 ]]>
 </INLINE>
