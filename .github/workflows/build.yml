@@ -3,14 +3,14 @@ name: Build Aurora Plugin
 on:
   push:
     branches:
-      - main  # Change to your default branch if it's 'master'
-  workflow_dispatch: # Allows you to manually trigger the build from the GitHub Actions tab
+      - main
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     permissions:
-      contents: write # Grants permission to commit the built PLG back to the repo
+      contents: write # Required so the action can push the .plg file back to the repo
 
     steps:
       - name: Check out repository
