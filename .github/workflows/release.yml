@@ -36,15 +36,15 @@ jobs:
       - name: Prepare Plugin Manifest & Archive
         run: |
           mkdir -p build
-          tar -cJf build/Aurora-Theme.txz -C plugin .
-          cp Aurora-Theme.plg build/Aurora-Theme.plg
+          tar -cJf build/AuroraUnraid.txz -C plugin .
+          cp AuroraUnraid.plg build/AuroraUnraid.plg
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
           files: |
-            build/Aurora-Theme.plg
-            build/Aurora-Theme.txz
+            build/AuroraUnraid.plg
+            build/AuroraUnraid.txz
           tag_name: ${{ steps.get_version.outputs.tag_name }}
           name: Release ${{ steps.get_version.outputs.tag_name }}
           draft: false
