@@ -2,90 +2,56 @@
 <!DOCTYPE PLUGIN>
 
 <PLUGIN name="Aurora-Theme"
-        author="Tunefish"
-        version="2026.10.30.0616"
+        author="Tunefish, modified by thepixlpirate"
+        version="2026.10.30.0635"
         launch="Settings/AuroraThemeSettings"
-        pluginURL="https://raw.githubusercontent.com/thepixlpirate/Aurora-Theme/main/Aurora-Theme.plg"
+        pluginURL="https://raw.githubusercontent.com/thepixlpirate/Aurora-Theme/release/Aurora-Theme.plg"
         support="https://github.com/thepixlpirate/Aurora-Theme/issues"
         icon="paint-brush"
         min="7.2.0">
 
 <CHANGES>
-###2026.10.30.0616
+###2026.10.30.0635
+- Fork additions: Quick Actions buttons can be hidden and re-ordered (drag) from the settings page; new "Hidden groups" eye button in Quick Actions that hides chosen Docker groups on the Docker tab and the Dashboard.
+- Settings page: toggles for each top bar item (dark / light button, uptime and license, server icon, server name, bell, menu); toggles to hide any tile on the Settings and Tools pages; option to disable or change the Unraid logo link.
+- Removed: the "Feedback and issues" and "Your own changes" sections of the settings page, the footer "manual" button and the "Aurora Theme by" button.
 - New colours, fonts, tables, buttons, dialogs and notification panel for the Black and White themes.
-
 - Optional sidebar navigation layout.
-
 - Page enhancements: brand and server card in the sidebar, slim top bar, page headings, status pills, Docker summary and filters.
-
 - Own Stats page with a built-in collector, replacing Dynamix System Statistics.
-
 - Docker application groups, compact container list, restyled switches and menus.
-
 - Updates from the GitHub releases: "Check for updates" and "Update now" on the settings page, and automatic updates (on by default, weekly).
-
 - Redesigned Main, Users, VMs and login page; live port check in the Docker editor; dark / light switch.
-
 - Redesigned top bar, Apps tab, tool pages, help boxes and notices; the processor tile shows its cores as a compact grid.
-
 - Phone layout fixes across the webGUI: Dashboard tiles, wide tables, VM editor, Apps, header and pop-ups.
-
 - Plugins page: a plugin whose update check failed for a moment ("not available") is checked again; Aurora's own check needs a single request.
-
 - Choose when automatic updates run (hourly, daily or weekly at a set time); redesigned GPU Statistics tile.
-
 - GPU tile: an idle GPU's clock reads "idle"; NVIDIA and AMD rows tidied.
-
 - Docker page loads much faster with many containers, with a loading status; array usage widget; custom banner and header colours shown; Display Settings fixes.
-
 - FolderView support with an Aurora / FolderViewPlugin switch; groups on the Dashboard with app icons and CPU / RAM sums; VM usage cards, accent colour, phone fixes.
-
 - Containers keep Unraid's order and start in the order they are listed: drag them within and between groups, and move whole groups while the list is unlocked. VM groups on the VMs tab and the Dashboard, a buttons column on the VMs tab, group icons that open the app's menu and show stopped apps too. The sidebar can be hidden. FolderView3: the view switch on the VMs tab as well, drag to the top of the list, its autostart sequence respected, a tidier settings page. Fixes for long names on phones, the updates count and the server card.
-
 - Top layout: with the array usage indicator on, Stats and Tools are back in the menu; the indicator sits in the top bar on wide screens.
-
 - New "Fonts" setting: Aurora's Inter and Space Grotesk, or Unraid's own Clear Sans.
-
 - Dark / light switch: only the theme setting in dynamix.cfg is changed, and settings lost while the Unraid API rewrites the file are put back (two quick switches could empty it).
-
 - With "Favorites enabled" set to No in Display Settings, Unraid's Favorites tab is hidden too.
-
 - Docker start delay ("wait") field wide enough for its number in FolderView3's view.
-
 - An orange dot on a container's icon when an update is ready, running or not: on the Dashboard, in group and folder icons and in the Docker tab's compact list. A stopped container with an update stays on the Dashboard when stopped containers are hidden.
-
 - FolderView Plus support: with it installed, its folders arrange the Docker and VMs tabs and the Dashboard, and Aurora keeps to colours and layout (no view switch).
-
 - After an update, the next page shows "Aurora Theme updated" with the new version and its release notes; automatic updates also show an Unraid notification. Automatic updates are checked weekly by default.
-
 - Docker and VMs tabs with FolderView3 or FolderView Plus: a "beta" note in the top bar; their support still has compatibility issues and is being worked on. With both installed, a warning that this is not supported (also on the Dashboard and the Plugins page).
-
 - Phones: pages fit the screen width exactly; the "back to top" / "to the end" buttons no longer let the page be pushed sideways.
-
 - Faster on busy pages: style rules that the browser checked again on every change of any page (Community Applications cards, GPU tile) are limited to their page or replaced.
-
 - FolderView Plus: long container, VM and folder names end in "..." inside their chips and name boxes. Dashboard Array and pool tiles keep their columns in one row; on phones the status column has room for "standby".
-
 - Update channel: "Dev builds (testing)" also installs the dev builds published between releases; an "Aurora Dev" badge in the top bar shows when one is installed, and "Install stable" goes back to the stable release.
-
 - "Aurora Theme updated" dialog: after skipping versions, it lists the notes of every release since the previous version, newest first, each with its date.
-
 - Docker tab and Dashboard: a container updated in the background (CA Auto Update, "Update All" in another tab, the scheduled check) no longer shows "update ready" until the page is reloaded; the list is loaded again within 20 seconds.
-
 - Docker tab (Aurora view): images no container uses ("orphan image") are collected in an "Orphans" section at the end of the list, also in the basic view, with a "Remove all" button.
-
 - Docker tab on phones: each container's card also shows its addresses and its mounts (#27).
-
 - Phones: dialogs fit the part of the screen the browser leaves visible, so the Done button of a container update and the buttons of long dialogs no longer end up behind the browser's bars; long texts scroll between the title and the buttons.
-
 - Docker tab and Dashboard: "Check for Updates" and Unraid's scheduled check are no longer interrupted by the list's automatic refresh, which showed half the results, ended the "checking" state early and could put the old results back; the list now waits until the check is done.
-
 - File and folder pickers (Plugins > Install Plugin, the path fields of the Docker and VM editors, ...) in the theme's style, with folder and file icons; command output on a disk's page (btrfs status, ...) is monospaced again, so its columns line up.
-
 - Dashboard, Virtual Machines Usage: each VM's card is wide again, and its CPU bars and network reading stay inside it (#29).
-
 - Unraid OS update notice beside the version: a round icon without animation (a download arrow in the accent for an update, a restart arrow in amber for "Reboot to Update"); the tooltip says which version. In the sidebar layout the "Aurora Dev" badge sits centred on its own line under the version.
-
 </CHANGES>
 
 <!-- Install: write all plugin files. Generated by plugin/build.py; edit the sources, not this file. -->
@@ -109,10 +75,10 @@ if [ -e /boot/config/plugins/$OLD.plg ] || [ -d /usr/local/emhttp/plugins/$OLD ]
   echo "Settings moved over from $OLD, which has been removed."
 fi
 old=$(sed -n 's/^[[:space:]]*version="\([^"]*\)".*/\1/p' /boot/config/plugins/Aurora-Theme.plg 2>/dev/null | head -n 1)
-if [[ "$old" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[A-Za-z0-9._-]*$ && "$old" != "2026.10.30.0616" ]]; then
+if [[ "$old" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[A-Za-z0-9._-]*$ && "$old" != "2026.10.30.0635" ]]; then
   from=$(sed -n 's/.*"from":"\([^"]*\)".*/\1/p' /boot/config/plugins/Aurora-Theme/updated.json 2>/dev/null)
   [[ "$from" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[A-Za-z0-9._-]*$ ]] || from=$old
-  printf '{"from":"%s","to":"%s","time":%s}\n' "$from" "2026.10.30.0616" "$(date +%s)" > /boot/config/plugins/Aurora-Theme/updated.json
+  printf '{"from":"%s","to":"%s","time":%s}\n' "$from" "2026.10.30.0635" "$(date +%s)" > /boot/config/plugins/Aurora-Theme/updated.json
 fi
 cat > /usr/local/emhttp/plugins/Aurora-Theme/AuroraTheme.page <<'AURORA_THEME_EOF'
 Menu="Buttons"
@@ -207,22 +173,50 @@ foreach (['clear-sans', 'bitstream'] as $auroraFamily) {
 :root:root:root { --tp-font-body: clear-sans, system-ui, -apple-system, "Segoe UI", sans-serif; --tp-font-heading: var(--tp-font-body); }
 </style>
 <?php endif; ?>
-<script>
-// Theme credit at the end of the footer.
-document.addEventListener('DOMContentLoaded', function () {
-  var footer = document.getElementById('copyright');
-  if (!footer || footer.querySelector('.tp-credit')) return;
-  var link = document.createElement('a');
-  link.className = 'tp-credit';
-  link.href = 'https://github.com/Tunefish92';
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  link.title = 'Aurora Theme on GitHub';
-  link.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>Aurora Theme by <strong>Tunefish</strong>';
-  footer.append(link);
-});
-</script>
 <?php endif; ?>
+<?php
+// ---- Fork additions: hidden top bar items, Quick Actions order, hidden Docker groups, ...
+// Lists in the settings are comma separated; only plain keys are let through.
+$auroraList = function ($value) {
+    $keys = [];
+    foreach (explode(',', (string) $value) as $key) {
+        $key = trim($key);
+        if ($key !== '' && preg_match('/^[A-Za-z0-9_.:\/-]{1,120}$/', $key)) $keys[] = $key;
+    }
+    return array_values(array_unique($keys));
+};
+$auroraLogoUrl = trim((string) ($aurora['logo_url'] ?? ''));
+if (!preg_match('~^(https?://|/)[^\s<>"\']+$~i', $auroraLogoUrl)) $auroraLogoUrl = '';
+$auroraLogoMode = (string) ($aurora['logo_mode'] ?? 'default');
+if (!in_array($auroraLogoMode, ['default', 'disabled', 'custom'], true) || ($auroraLogoMode === 'custom' && $auroraLogoUrl === '')) $auroraLogoMode = $auroraLogoMode === 'disabled' ? 'disabled' : 'default';
+$auroraUi = [
+    'qaOrder' => $auroraList($aurora['qa_order'] ?? ''),
+    'qaHidden' => $auroraList($aurora['qa_hidden'] ?? ''),
+    'hideSettings' => $auroraList($aurora['hide_settings'] ?? ''),
+    'hideTools' => $auroraList($aurora['hide_tools'] ?? ''),
+    'logo' => ['mode' => $auroraLogoMode, 'url' => $auroraLogoUrl, 'target' => (($aurora['logo_target'] ?? 'self') === 'blank') ? 'blank' : 'self'],
+];
+$auroraHidden = json_decode((string) @file_get_contents("$auroraCustomDir/hidden-groups.json"), true);
+$auroraHidden = [
+    'enabled' => !empty($auroraHidden['enabled']),
+    'names' => is_array($auroraHidden['names'] ?? null) ? array_values(array_filter($auroraHidden['names'], 'is_string')) : [],
+];
+$auroraTweakClasses = [];
+foreach (['theme_switch' => 'theme', 'uptime' => 'uptime', 'server_icon' => 'servericon', 'server_name' => 'servername', 'bell' => 'bell', 'menu' => 'menu', 'connected_server' => 'connected'] as $auroraSetting => $auroraHideClass) {
+    if (($aurora["show_$auroraSetting"] ?? 'yes') === 'no') $auroraTweakClasses[] = "tp-hide-$auroraHideClass";
+}
+if (($aurora['sidebar_qa'] ?? 'bottom') === 'top') $auroraTweakClasses[] = 'tp-qa-top';
+$auroraJsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+?>
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/Aurora-Theme/styles/ui-tweaks.css') ?>">
+<script>
+window.auroraUi = <?= json_encode($auroraUi, $auroraJsonFlags) ?>;
+window.auroraHidden = <?= json_encode($auroraHidden, $auroraJsonFlags) ?>;
+<?php if ($auroraTweakClasses): ?>
+document.documentElement.classList.add(...<?= json_encode($auroraTweakClasses) ?>);
+<?php endif; ?>
+</script>
+<script defer src="<?php autov('/plugins/Aurora-Theme/scripts/ui-tweaks.js') ?>"></script>
 <script>
 // "tp-topbar" while the menu is a bar across the top: always in the top layout, and in the
 // sidebar layout on screens narrower than 1024px. Set here in the head, so there is no flash.
@@ -391,7 +385,7 @@ if (in_array(rtrim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PAT
 <?php if ($auroraClasses): ?>
 <script>document.documentElement.classList.add(...<?= json_encode($auroraClasses) ?>);</script>
 <?php endif; ?>
-<?php if (substr('2026.10.30.0616', -4) === '-dev'): ?>
+<?php if (substr('2026.10.30.0635', -4) === '-dev'): ?>
 <?php // A dev build (version "...-dev", set by plugin/build.py) is installed: a "Dev" badge in the
       // top bar, linking to the settings, where the update channel goes back to stable. ?>
 <style id="aurora-dev-badge">
@@ -413,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var badge = document.createElement('a');
   badge.className = 'tp-dev-badge';
   badge.href = '/Settings/AuroraThemeSettings';
-  badge.title = 'Aurora Theme dev build 2026.10.30.0616: a test version, installed because the update channel is set to dev builds. Click to change it.';
+  badge.title = 'Aurora Theme dev build 2026.10.30.0635: a test version, installed because the update channel is set to dev builds. Click to change it.';
   badge.innerHTML = '<i aria-hidden="true"></i><span>Aurora</span><b>Dev</b>';
   // Where it goes: with the sidebar shown, on its own line under Unraid's version (the version
   // row has room for the version and its update notice only); otherwise in
@@ -593,6 +587,214 @@ function auroraSchedule() {
 auroraSchedule();
 </script>
 
+_(Sidebar)_:
+: <input type="hidden" name="show_connected_server" value="no"><label class="tft-check tft-check-inline"><input type="checkbox" name="show_connected_server" value="yes"<?= ($aurora['show_connected_server'] ?? 'yes') === 'yes' ? ' checked' : '' ?>> _(Show "Connected server")_</label> <select name="sidebar_qa">
+  <?=mk_option($aurora['sidebar_qa'] ?? 'bottom', "bottom", _("Quick Actions below the links"))?>
+  <?=mk_option($aurora['sidebar_qa'] ?? 'bottom', "top", _("Quick Actions above the links"))?>
+  </select>
+
+> Only for the sidebar layout. The Quick Actions go under the "Connected server" card (or at the
+> very top when that is hidden), or stay at the bottom of the sidebar.
+
+_(Top bar items)_:
+: <div class="tft-toggles"><?php foreach (['theme_switch' => 'Dark / light mode button', 'uptime' => 'Uptime and license status', 'server_icon' => 'Server icon', 'server_name' => 'Server name', 'bell' => 'Notification bell', 'menu' => 'Menu (hamburger)'] as $auroraKey => $auroraText) { echo '<input type="hidden" name="show_' . $auroraKey . '" value="no"><label class="tft-check tft-check-inline"><input type="checkbox" name="show_' . $auroraKey . '" value="yes"' . (($aurora['show_' . $auroraKey] ?? 'yes') === 'yes' ? ' checked' : '') . '> ' . htmlspecialchars(_($auroraText)) . '</label>'; } ?></div>
+
+> Tick what the top bar shows; untick to hide it. The bell and the menu are found by their
+> place in the row (bell first, menu last).
+
+_(Unraid logo)_:
+: <span class="tft-logo"><select name="logo_mode" id="tft-logo-mode" onchange="auroraLogo()">
+  <?=mk_option($aurora['logo_mode'] ?? 'default', "default", _("Default (Unraid's own link)"))?>
+  <?=mk_option($aurora['logo_mode'] ?? 'default', "disabled", _("Not clickable"))?>
+  <?=mk_option($aurora['logo_mode'] ?? 'default', "custom", _("Go to my own address"))?>
+  </select><input type="text" name="logo_url" id="tft-logo-url" maxlength="300" placeholder="https://example.com or /Dashboard" title="_(An address starting with http://, https:// or /)_" value="<?= htmlspecialchars($aurora['logo_url'] ?? '') ?>"><select name="logo_target" id="tft-logo-target">
+  <?=mk_option($aurora['logo_target'] ?? 'self', "self", _("Same tab"))?>
+  <?=mk_option($aurora['logo_target'] ?? 'self', "blank", _("New tab"))?>
+  </select></span>
+
+> What happens when you click the Unraid logo in the top left. **Not clickable** turns the link
+> off; **Go to my own address** opens the address you type (a full web address, or a path on
+> this server such as `/Dashboard`).
+
+_(Quick Actions buttons)_:
+: <input type="hidden" name="qa_order" id="tft-qa-order" value="<?= htmlspecialchars($aurora['qa_order'] ?? '') ?>"><input type="hidden" name="qa_hidden" id="tft-qa-hidden" value="<?= htmlspecialchars($aurora['qa_hidden'] ?? '') ?>"><div id="tft-qa" class="tft-sortlist" aria-live="polite">Loading…</div><input type="button" value="_(Reset order)_" onclick="auroraQaReset()">
+
+> The buttons in the Quick Actions area of the menu. Untick a button to hide it; drag a row by its
+> handle (or use the arrows) to change the order.
+
+_(Settings page tiles)_:
+: <input type="hidden" name="hide_settings" id="tft-hide-settings" value="<?= htmlspecialchars($aurora['hide_settings'] ?? '') ?>"><div id="tft-panels-settings" class="tft-panels">Loading…</div>
+
+_(Tools page tiles)_:
+: <input type="hidden" name="hide_tools" id="tft-hide-tools" value="<?= htmlspecialchars($aurora['hide_tools'] ?? '') ?>"><div id="tft-panels-tools" class="tft-panels">Loading…</div>
+
+> Tick what the Settings and Tools pages show; untick to hide a tile. This only hides the tile:
+> the page behind it is still reachable by its address. This settings page itself cannot be hidden.
+
+<script>
+// ---- Unraid logo: the address and tab only for "my own address".
+function auroraLogo() {
+  var custom = document.getElementById('tft-logo-mode').value === 'custom';
+  document.getElementById('tft-logo-url').hidden = !custom;
+  document.getElementById('tft-logo-target').hidden = !custom;
+}
+auroraLogo();
+
+// A change of a script-filled hidden field is announced so that Unraid enables "Apply".
+function auroraAnnounce(field) {
+  ['input', 'change'].forEach(function (type) { field.dispatchEvent(new Event(type, { bubbles: true })); });
+}
+function auroraSplit(value) {
+  return String(value || '').split(',').map(function (part) { return part.trim(); }).filter(Boolean);
+}
+
+// ---- Quick Actions: a list read from the buttons of this page's menu.
+var auroraQa = { rows: [], list: null };
+function auroraQaSync() {
+  var order = [], hidden = [];
+  auroraQa.list.querySelectorAll('.tft-sort-row').forEach(function (row) {
+    order.push(row.dataset.key);
+    if (!row.querySelector('input[type=checkbox]').checked) hidden.push(row.dataset.key);
+  });
+  document.getElementById('tft-qa-order').value = order.join(',');
+  document.getElementById('tft-qa-hidden').value = hidden.join(',');
+  auroraAnnounce(document.getElementById('tft-qa-order'));
+  auroraAnnounce(document.getElementById('tft-qa-hidden'));
+}
+function auroraQaBuild() {
+  var tweaks = window.auroraTweaks;
+  var list = document.getElementById('tft-qa');
+  if (!tweaks) { list.textContent = 'The button list is not available (is the theme switched off for this browser?).'; return; }
+  var saved = auroraSplit(document.getElementById('tft-qa-order').value);
+  var hidden = auroraSplit(document.getElementById('tft-qa-hidden').value);
+  var found = tweaks.quickItems().map(function (node) {
+    return { key: tweaks.quickKey(node), label: tweaks.quickLabel(node), icon: tweaks.quickIcon(node) };
+  });
+  // Saved buttons that are not on this page right now stay in the list, so nothing is lost.
+  saved.concat(hidden).forEach(function (key) {
+    if (!found.some(function (item) { return item.key === key; })) found.push({ key: key, label: key.replace(/^(href|text):/, ''), icon: null, absent: true });
+  });
+  found.sort(function (a, b) {
+    var ia = saved.indexOf(a.key), ib = saved.indexOf(b.key);
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+  });
+  list.className = 'tft-sortlist';
+  list.replaceChildren();
+  var dragging = null;
+  found.forEach(function (item) {
+    var row = document.createElement('div');
+    row.className = 'tft-sort-row';
+    row.dataset.key = item.key;
+    var grip = document.createElement('span');
+    grip.className = 'tft-grip';
+    grip.title = 'Drag to move';
+    grip.innerHTML = '<i class="fa fa-bars"></i>';
+    var check = document.createElement('input');
+    check.type = 'checkbox';
+    check.checked = hidden.indexOf(item.key) === -1;
+    check.addEventListener('change', auroraQaSync);
+    var icon = document.createElement('span');
+    icon.className = 'tft-sort-icon';
+    if (item.icon) icon.append(item.icon);
+    var label = document.createElement('span');
+    label.className = 'tft-sort-label';
+    label.textContent = item.label + (item.absent ? ' (not on this page)' : '');
+    var up = document.createElement('button'), down = document.createElement('button');
+    up.type = down.type = 'button';
+    up.className = down.className = 'tft-move';
+    up.title = 'Move up'; down.title = 'Move down';
+    up.innerHTML = '<i class="fa fa-arrow-up"></i>'; down.innerHTML = '<i class="fa fa-arrow-down"></i>';
+    up.addEventListener('click', function () { if (row.previousElementSibling) { list.insertBefore(row, row.previousElementSibling); auroraQaSync(); } });
+    down.addEventListener('click', function () { if (row.nextElementSibling) { list.insertBefore(row.nextElementSibling, row); auroraQaSync(); } });
+    grip.addEventListener('mousedown', function () { row.draggable = true; });
+    row.addEventListener('dragstart', function (event) {
+      dragging = row;
+      row.classList.add('tft-dragging');
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', item.key);
+    });
+    row.addEventListener('dragend', function () {
+      row.draggable = false;
+      row.classList.remove('tft-dragging');
+      dragging = null;
+      auroraQaSync();
+    });
+    row.append(grip, check, icon, label, up, down);
+    list.append(row);
+  });
+  list.ondragover = function (event) {
+    if (!dragging) return;
+    event.preventDefault();
+    var after = null, best = Number.NEGATIVE_INFINITY;
+    list.querySelectorAll('.tft-sort-row:not(.tft-dragging)').forEach(function (row) {
+      var box = row.getBoundingClientRect();
+      var offset = event.clientY - box.top - box.height / 2;
+      if (offset < 0 && offset > best) { best = offset; after = row; }
+    });
+    if (after) list.insertBefore(dragging, after); else list.append(dragging);
+  };
+}
+function auroraQaReset() {
+  document.getElementById('tft-qa-order').value = '';
+  document.getElementById('tft-qa-hidden').value = '';
+  auroraAnnounce(document.getElementById('tft-qa-order'));
+  auroraAnnounce(document.getElementById('tft-qa-hidden'));
+  auroraQaBuild();
+}
+
+// ---- Settings and Tools tiles: a checkbox per tile of that page, read from the page itself.
+function auroraPanels(kind, fieldId, boxId) {
+  var field = document.getElementById(fieldId);
+  var box = document.getElementById(boxId);
+  var hidden = auroraSplit(field.value);
+  var sync = function () {
+    var now = [];
+    box.querySelectorAll('input[type=checkbox]').forEach(function (check) { if (!check.checked) now.push(check.dataset.key); });
+    // Tiles that are not on the page any more keep their saved choice.
+    hidden.forEach(function (key) { if (!box.querySelector('input[data-key="' + key + '"]') && now.indexOf(key) === -1) now.push(key); });
+    field.value = now.join(',');
+    auroraAnnounce(field);
+  };
+  var tweaks = window.auroraTweaks;
+  if (!tweaks) { box.textContent = 'The tile list is not available (is the theme switched off for this browser?).'; return; }
+  tweaks.fetchPanels(kind).then(function (panels) {
+    box.replaceChildren();
+    if (!panels.length) { box.textContent = 'No tiles found on the ' + kind + ' page.'; return; }
+    var section = null, grid = null;
+    panels.forEach(function (panel) {
+      if (grid === null || panel.section !== section) {
+        section = panel.section;
+        if (section) { var heading = document.createElement('div'); heading.className = 'tft-panels-heading'; heading.textContent = section; box.append(heading); }
+        grid = document.createElement('div');
+        grid.className = 'tft-toggles';
+        box.append(grid);
+      }
+      var label = document.createElement('label');
+      label.className = 'tft-check tft-check-inline';
+      var check = document.createElement('input');
+      check.type = 'checkbox';
+      check.dataset.key = panel.key;
+      check.checked = hidden.indexOf(panel.key) === -1;
+      check.addEventListener('change', sync);
+      label.append(check, document.createTextNode(' ' + panel.label));
+      grid.append(label);
+    });
+  }).catch(function () { box.textContent = 'The ' + kind + ' page could not be read.'; });
+}
+
+// The Quick Actions are drawn by the theme's script after the page is parsed; wait for it.
+document.addEventListener('DOMContentLoaded', function () {
+  var tries = 0;
+  (function wait() {
+    if (window.auroraTweaks || tries++ > 40) {
+      auroraQaBuild();
+      auroraPanels('Settings', 'tft-hide-settings', 'tft-panels-settings');
+      auroraPanels('Tools', 'tft-hide-tools', 'tft-panels-tools');
+    } else setTimeout(wait, 100);
+  })();
+});
+</script>
+
 &nbsp;
 : <span class="inline-block"><input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"></span>
 </form>
@@ -725,88 +927,6 @@ function auroraInstall(button, plg, forced) {
 }
 </script>
 
-<div class="title"><span class="left"><i class="fa fa-github title"></i>_(Feedback and issues)_</span></div>
-<div class="tft-issue">
-<p class="tft-issue-intro">Report a bug, something that is not implemented yet, or an idea. This opens a new issue on GitHub with your text filled in; you review and submit it there. Nothing is sent from this server.</p>
-<div class="tft-segment" role="radiogroup" aria-label="Kind of report">
-<button type="button" class="tft-segment-option" role="radio" aria-checked="true" data-kind="Bug">Bug</button><button type="button" class="tft-segment-option" role="radio" aria-checked="false" data-kind="Missing">Not implemented yet</button><button type="button" class="tft-segment-option" role="radio" aria-checked="false" data-kind="Feature">Feature idea</button><button type="button" class="tft-segment-option" role="radio" aria-checked="false" data-kind="Design">Design</button>
-</div>
-<label class="tft-field"><span>Summary</span><input type="text" id="tft-issue-title" maxlength="120" placeholder="For example: Docker groups do not save"></label>
-<label class="tft-field"><span>Details</span><textarea id="tft-issue-body" rows="6" placeholder="What happened, or what would you like? Which page? Steps to reproduce help a lot."></textarea></label>
-<label class="tft-check"><input type="checkbox" id="tft-issue-env" checked> Add system details: plugin <?= htmlspecialchars($auroraInstalled ?: 'unknown') ?>, Unraid <?= htmlspecialchars((string) ($var['version'] ?? 'unknown')) ?>, theme <?= htmlspecialchars((string) ($display['theme'] ?? 'unknown')) ?>, layout <?= htmlspecialchars((string) ($aurora['layout'] ?? '')) ?>, browser</label>
-<div class="tft-issue-actions"><button type="button" class="tft-button tft-button-primary" id="tft-issue-open" disabled><i class="fa fa-github"></i> Open issue on GitHub</button><a class="tft-link" href="https://github.com/<?= htmlspecialchars($auroraRepo) ?>/issues" target="_blank" rel="noopener noreferrer">See existing issues</a></div>
-</div>
-<script>
-(function () {
-  var repo = <?= json_encode($auroraRepo) ?>;
-  var details = <?= json_encode([
-      'Plugin' => $auroraInstalled ?: 'unknown',
-      'Unraid' => (string) ($var['version'] ?? 'unknown'),
-      'Dynamix theme' => (string) ($display['theme'] ?? 'unknown'),
-      'Layout' => (string) ($aurora['layout'] ?? ''),
-      'Enhancements' => (string) ($aurora['enhance'] ?? ''),
-      'Stats page' => (string) ($aurora['stats'] ?? ''),
-  ]) ?>;
-  var kinds = { Bug: 'Bug', Missing: 'Not implemented', Feature: 'Feature', Design: 'Design' };
-  // GitHub's standard labels; GitHub applies them only for people allowed to label issues.
-  var labels = { Bug: 'bug', Missing: 'enhancement', Feature: 'enhancement', Design: 'enhancement' };
-  var kind = 'Bug';
-  var title = document.getElementById('tft-issue-title');
-  var body = document.getElementById('tft-issue-body');
-  var open = document.getElementById('tft-issue-open');
-  var options = document.querySelectorAll('.tft-segment-option');
-  options.forEach(function (option) {
-    option.addEventListener('click', function () {
-      kind = option.dataset.kind;
-      options.forEach(function (other) { other.setAttribute('aria-checked', String(other === option)); });
-    });
-  });
-  // The browser as a name and major version ("Brave 141", "Firefox 157"), not the whole
-  // user-agent string, which every Chromium browser fills with "Chrome" and "Safari". Chromium
-  // browsers name themselves in userAgentData; Brave also marks itself with navigator.brave.
-  function browserName() {
-    var ua = navigator.userAgent;
-    var data = navigator.userAgentData;
-    var brand = data && Array.isArray(data.brands) && data.brands.filter(function (entry) {
-      return !/chromium|not.?a.?brand/i.test(entry.brand);
-    })[0];
-    if (navigator.brave) {
-      var chromium = data && Array.isArray(data.brands) && data.brands.filter(function (entry) { return /chromium/i.test(entry.brand); })[0];
-      var match = ua.match(/Chrome\/(\d+)/);
-      return 'Brave ' + (chromium ? chromium.version : match ? match[1] : '');
-    }
-    if (brand) return brand.brand.replace(/^(?:Google|Microsoft) /, '') + ' ' + brand.version;
-    var known = [['Edge', /Edg(?:e|A|iOS)?\/(\d+)/], ['Opera', /OPR\/(\d+)/], ['Vivaldi', /Vivaldi\/(\d+)/],
-      ['Samsung Internet', /SamsungBrowser\/(\d+)/], ['Firefox', /(?:Firefox|FxiOS)\/(\d+)/],
-      ['Chrome', /(?:Chrome|CriOS)\/(\d+)/], ['Safari', /Version\/(\d+).*Safari/]];
-    for (var i = 0; i < known.length; i++) {
-      var found = ua.match(known[i][1]);
-      if (found) return known[i][0] + ' ' + found[1];
-    }
-    return 'unknown';
-  }
-  title.addEventListener('input', function () { open.disabled = !title.value.trim(); });
-  open.addEventListener('click', function () {
-    var text = body.value.trim() || '_No details given._';
-    if (document.getElementById('tft-issue-env').checked) {
-      text += '\n\n---\n**System**\n' + Object.keys(details).map(function (key) { return '- ' + key + ': ' + details[key]; }).join('\n')
-        + '\n- Browser: ' + browserName();
-    }
-    var url = 'https://github.com/' + repo + '/issues/new?title=' + encodeURIComponent('[' + kinds[kind] + '] ' + title.value.trim())
-      + '&body=' + encodeURIComponent(text) + '&labels=' + encodeURIComponent(labels[kind]);
-    window.open(url, '_blank', 'noopener');
-  });
-})();
-</script>
-
-<div class="title"><span class="left"><i class="fa fa-code title"></i>_(Your own changes)_</span></div>
-
-Put your own rules in these files on the flash drive. They are loaded on every page, after the
-theme, and survive plugin updates:
-
-- `/boot/config/plugins/Aurora-Theme/custom.css` <?= is_file('/boot/config/plugins/Aurora-Theme/custom.css') ? '&mdash; found' : '&mdash; not present' ?>
-- `/boot/config/plugins/Aurora-Theme/custom.js` <?= is_file('/boot/config/plugins/Aurora-Theme/custom.js') ? '&mdash; found' : '&mdash; not present' ?>
-
 <div class="title"><span class="left"><i class="fa fa-life-ring title"></i>_(Emergency switch)_</span></div>
 
 If the theme ever makes a page unusable, open any page with `?aurora=off` added to the address,
@@ -856,6 +976,21 @@ autoupdate_day="0"
 autoupdate_time="03:00"
 accent=""
 font="aurora"
+show_theme_switch="yes"
+show_uptime="yes"
+show_server_icon="yes"
+show_server_name="yes"
+show_bell="yes"
+show_menu="yes"
+qa_order=""
+qa_hidden=""
+hide_settings=""
+hide_tools=""
+logo_mode="default"
+logo_url=""
+logo_target="self"
+show_connected_server="yes"
+sidebar_qa="bottom"
 AURORA_THEME_EOF
 cat > /usr/local/emhttp/plugins/Aurora-Theme/fonts/inter-LICENSE.txt <<'AURORA_THEME_EOF'
 Copyright 2016 The Inter Project Authors (https://github.com/rsms/inter)
@@ -5392,6 +5527,48 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 
 $stored = json_decode((string) @file_get_contents(TFT_FAVOURITES_FILE), true);
 echo json_encode(['favourites' => tft_clean_favourites($stored['favourites'] ?? [])]);
+AURORA_THEME_EOF
+cat > /usr/local/emhttp/plugins/Aurora-Theme/include/hidden-groups.php <<'AURORA_THEME_EOF'
+<?php
+// Docker groups hidden by the "Hidden groups" button in the Quick Actions.
+//   GET                   returns {"enabled": bool, "names": ["Group", "__ungrouped__", ...]}
+//   POST state=<that JSON> stores it
+// Unraid checks its csrf_token on every POST before this file runs. The file lives on the
+// flash drive, so the choice is the same in every browser and survives reboots.
+
+define('TFT_HIDDEN_FILE', '/boot/config/plugins/Aurora-Theme/hidden-groups.json');
+
+function tft_clean_hidden($data): array
+{
+    $names = [];
+    foreach (is_array($data['names'] ?? null) ? array_slice($data['names'], 0, 200) : [] as $name) {
+        if (is_string($name) && $name !== '' && strlen($name) <= 200) $names[] = $name;
+    }
+    return ['enabled' => !empty($data['enabled']), 'names' => array_values(array_unique($names))];
+}
+
+header('Content-Type: application/json');
+header('Cache-Control: no-store');
+
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
+    $input = json_decode((string) ($_POST['state'] ?? ''), true);
+    if (!is_array($input)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'state must be a JSON object']);
+        exit;
+    }
+    $state = tft_clean_hidden($input);
+    if (!is_dir(dirname(TFT_HIDDEN_FILE))) mkdir(dirname(TFT_HIDDEN_FILE), 0755, true);
+    if (file_put_contents(TFT_HIDDEN_FILE, json_encode($state, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n", LOCK_EX) === false) {
+        http_response_code(500);
+        echo json_encode(['error' => 'could not write ' . TFT_HIDDEN_FILE]);
+        exit;
+    }
+    echo json_encode($state);
+    exit;
+}
+
+echo json_encode(tft_clean_hidden(json_decode((string) @file_get_contents(TFT_HIDDEN_FILE), true)));
 AURORA_THEME_EOF
 cat > /usr/local/emhttp/plugins/Aurora-Theme/include/login-head.php <<'AURORA_THEME_EOF'
 <?php
@@ -10256,6 +10433,399 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/stats.js <<'AURORA_THEME_EO
 
   window.addEventListener('resize', function () { hosts.forEach(function (host, index) { drawChart(host, CHARTS[index]); }); });
   setRange(range);
+})();
+AURORA_THEME_EOF
+cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/ui-tweaks.js <<'AURORA_THEME_EOF'
+// Fork additions for the Aurora Theme, loaded on every page by AuroraTheme.page:
+//   - Quick Actions buttons: hidden / re-ordered as chosen on the settings page
+//   - the "Hidden groups" eye button (hides chosen Docker groups on the Docker tab and Dashboard)
+//   - tiles hidden on the Settings and Tools pages
+//   - the Unraid logo link switched off or pointed somewhere else
+//   - the footer's "manual" button
+// The settings come from window.auroraUi and window.auroraHidden (set in AuroraTheme.page).
+(function () {
+  'use strict';
+
+  const BASE = ((document.currentScript && document.currentScript.src) || '').replace(/\/scripts\/[^/]*$/, '');
+  const UI = window.auroraUi || {};
+  const UNGROUPED = '__ungrouped__';
+  const state = {
+    enabled: Boolean(window.auroraHidden && window.auroraHidden.enabled),
+    names: Array.isArray(window.auroraHidden && window.auroraHidden.names) ? window.auroraHidden.names.slice() : [],
+  };
+
+  function el(tag, className, text) {
+    const node = document.createElement(tag);
+    if (className) node.className = className;
+    if (text !== undefined) node.textContent = text;
+    return node;
+  }
+
+  // ---------------------------------------------------------------- Quick Actions
+
+  function quickBox() {
+    return document.querySelector('.nav-tile.right');
+  }
+
+  // The buttons of the Quick Actions: Unraid's own (lock, terminal, help, ...), plugins' and ours.
+  function quickItems(box) {
+    box = box || quickBox();
+    if (!box) return [];
+    return [...box.children].filter(function (node) {
+      if (node.matches('.usage-bar, .tp-usage') || !node.matches('.nav-item, .nav-user')) return false;
+      return node.children.length > 0 || node.textContent.trim() !== '';
+    });
+  }
+
+  // A stable name for a button: our own data attribute, else its classes ("HelpButton"), else
+  // the end of its address, else its title.
+  function quickKey(node) {
+    let key = node.dataset && node.dataset.tpQa;
+    if (!key) {
+      const classes = [...node.classList].filter(function (name) {
+        return !/^(nav-item|nav-user|active|hidden|show|hide|open)$/.test(name) && !/^tp-/.test(name);
+      });
+      const anchor = node.querySelector('a[href]');
+      const href = (anchor && anchor.getAttribute('href')) || '';
+      if (classes.length) key = classes.join('.');
+      else if (href && href !== '#' && !/^javascript:/i.test(href)) key = 'href:' + (href.replace(/[?#].*$/, '').split('/').filter(Boolean).pop() || href);
+      else key = 'text:' + ((anchor && (anchor.title || anchor.textContent)) || node.title || 'button').trim().toLowerCase();
+    }
+    return key.replace(/[^A-Za-z0-9_.:-]+/g, '_').slice(0, 120);
+  }
+
+  function quickLabel(node) {
+    if (node.dataset && node.dataset.tpLabel) return node.dataset.tpLabel;
+    const anchor = node.querySelector('a');
+    const label = (anchor && anchor.getAttribute('title')) || node.getAttribute('title')
+      || (anchor && anchor.querySelector('span') && anchor.querySelector('span').textContent) || '';
+    return label.replace(/\s+/g, ' ').trim() || quickKey(node).replace(/^(href|text):/, '');
+  }
+
+  function quickIcon(node) {
+    const icon = node.querySelector('a b, a i, a svg');
+    return icon ? icon.cloneNode(true) : null;
+  }
+
+  function applyQuickActions() {
+    const box = quickBox();
+    if (!box) return;
+    const hidden = new Set(UI.qaHidden || []);
+    const order = UI.qaOrder || [];
+    quickItems(box).forEach(function (node) {
+      const key = quickKey(node);
+      node.classList.toggle('tp-qa-hidden', hidden.has(key));
+      if (!order.length) {
+        if (node.style.order) node.style.order = '';
+        return;
+      }
+      const index = order.indexOf(key);
+      // Buttons the list does not know (new plugins) go last.
+      node.style.order = String(index === -1 ? order.length + 1 : index + 1);
+    });
+  }
+
+  // ---------------------------------------------------------------- Hidden groups
+
+  const EYE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>';
+  const EYE_SHOWN = EYE + '</svg>';
+  const EYE_HIDDEN = EYE + '<path d="M4 4l16 16"/></svg>';
+
+  let eyeItem = null;
+  let popup = null;
+
+  function saveHidden() {
+    const body = new URLSearchParams({ state: JSON.stringify({ enabled: state.enabled, names: state.names }), csrf_token: window.csrf_token || '' });
+    fetch(BASE + '/include/hidden-groups.php', { method: 'POST', credentials: 'same-origin', body: body })
+      .then(function (response) { if (!response.ok) throw new Error('status ' + response.status); })
+      .catch(function (error) { console.error('Aurora Theme: hidden groups not saved', error); });
+  }
+
+  function refreshEye() {
+    if (!eyeItem) return;
+    eyeItem.classList.toggle('tp-hg-on', state.enabled);
+    const icon = eyeItem.querySelector('b');
+    if (icon) icon.innerHTML = state.enabled ? EYE_HIDDEN : EYE_SHOWN;
+    const anchor = eyeItem.querySelector('a');
+    anchor.title = state.enabled ? 'Hidden groups (hiding is on)' : 'Hidden groups';
+    anchor.setAttribute('aria-label', anchor.title);
+  }
+
+  function ensureEyeButton() {
+    const box = quickBox();
+    if (!box) return;
+    if (eyeItem && eyeItem.parentElement === box) return;
+    eyeItem = box.querySelector('.tp-hide-groups');
+    if (eyeItem) return;
+    eyeItem = el('div', 'nav-item tp-hide-groups');
+    eyeItem.dataset.tpQa = 'hide-groups';
+    eyeItem.dataset.tpLabel = 'Hidden groups';
+    const anchor = el('a');
+    anchor.href = '#';
+    anchor.append(el('b', 'system'), el('span', '', 'Hidden groups'));
+    anchor.addEventListener('click', function (event) {
+      event.preventDefault();
+      event.stopPropagation();
+      if (popup) closePopup();
+      else openPopup(anchor);
+    });
+    eyeItem.append(anchor);
+    box.append(eyeItem);
+    refreshEye();
+    applyQuickActions();
+  }
+
+  function groupNames() {
+    const fallback = (Array.isArray(window.auroraDockerGroups) ? window.auroraDockerGroups : []).map(function (group) { return group.name; });
+    // The saved groups, so a group created a moment ago is in the list.
+    return fetch(BASE + '/include/docker-groups.php', { credentials: 'same-origin' })
+      .then(function (response) { return response.json(); })
+      .then(function (data) { return (data.groups || []).map(function (group) { return group.name; }); })
+      .catch(function () { return fallback; });
+  }
+
+  function placePopup(anchor) {
+    if (!popup) return;
+    const rect = anchor.getBoundingClientRect();
+    const width = popup.offsetWidth;
+    const height = popup.offsetHeight;
+    const left = Math.min(Math.max(8, rect.left), window.innerWidth - width - 8);
+    let top = rect.top > window.innerHeight / 2 ? rect.top - height - 10 : rect.bottom + 10;
+    top = Math.max(8, Math.min(top, window.innerHeight - height - 8));
+    popup.style.left = left + 'px';
+    popup.style.top = top + 'px';
+  }
+
+  function closePopup() {
+    if (popup) popup.remove();
+    popup = null;
+    document.removeEventListener('pointerdown', outside, true);
+    document.removeEventListener('keydown', escape, true);
+  }
+
+  function outside(event) {
+    if (popup && !popup.contains(event.target) && !(eyeItem && eyeItem.contains(event.target))) closePopup();
+  }
+
+  function escape(event) {
+    if (event.key === 'Escape') closePopup();
+  }
+
+  function openPopup(anchor) {
+    popup = el('div', 'tp-hg-popup');
+    popup.setAttribute('role', 'dialog');
+    popup.setAttribute('aria-label', 'Hidden groups');
+    popup.append(el('h3', '', 'Hidden groups'));
+    const master = el('button', 'tp-hg-master');
+    master.type = 'button';
+    const list = el('div', 'tp-hg-list');
+    popup.append(master, list);
+    const showMaster = function () {
+      master.textContent = state.enabled ? 'Hiding is ON - click to show' : 'Hiding is OFF - click to hide';
+      master.classList.toggle('tp-on', state.enabled);
+    };
+    master.addEventListener('click', function () {
+      state.enabled = !state.enabled;
+      showMaster();
+      refreshEye();
+      saveHidden();
+      applyHiddenGroups();
+    });
+    showMaster();
+    document.body.append(popup);
+    placePopup(anchor);
+    document.addEventListener('pointerdown', outside, true);
+    document.addEventListener('keydown', escape, true);
+
+    groupNames().then(function (names) {
+      if (!popup) return;
+      if (!names.length) {
+        list.append(el('p', 'tp-hg-note', 'There are no Docker groups yet. Create groups on the Docker tab, then choose here which of them to hide.'));
+      } else {
+        names.concat([UNGROUPED]).forEach(function (name) {
+          const row = el('label', 'tp-hg-row');
+          const box = el('input');
+          box.type = 'checkbox';
+          box.checked = state.names.includes(name);
+          box.addEventListener('change', function () {
+            state.names = state.names.filter(function (other) { return other !== name; });
+            if (box.checked) state.names.push(name);
+            saveHidden();
+            applyHiddenGroups();
+          });
+          row.append(box, el('span', '', name === UNGROUPED ? 'Ungrouped' : name));
+          list.append(row);
+        });
+        list.append(el('p', 'tp-hg-note', 'Tick the groups to hide, then switch hiding on. Hidden groups disappear from the Docker tab and the Dashboard.'));
+      }
+      placePopup(anchor);
+    });
+  }
+
+  // Docker tab: a section's header row and its container rows. Dashboard: the group's chip and
+  // the panel under it. Only the theme's own groups; FolderView's folders are left alone.
+  function applyHiddenGroups() {
+    const current = [...document.querySelectorAll('.tp-hidden-group')];
+    if (!current.length && !(state.enabled && state.names.length)) return;
+    const wanted = new Set();
+    if (state.enabled && state.names.length) {
+      const names = new Set(state.names);
+      if (/^\/Docker\/?$/.test(location.pathname)) {
+        document.querySelectorAll('tr.tp-group').forEach(function (row) {
+          const key = row.tpKey;
+          if (typeof key !== 'string') return;
+          const name = key === '\u0000ungrouped' ? UNGROUPED : key.startsWith('g:') ? key.slice(2) : null;
+          if (name === null || !names.has(name)) return;
+          wanted.add(row);
+          (row.tpItems || []).forEach(function (item) { if (item && item.row) wanted.add(item.row); });
+        });
+      }
+      document.querySelectorAll('.tp-group-chip.apps').forEach(function (chip) {
+        const nameNode = chip.querySelector('.tp-group-chip-name');
+        const text = nameNode ? nameNode.textContent.trim() : '';
+        if (!names.has(text === 'Ungrouped' && !names.has('Ungrouped') ? UNGROUPED : text)) return;
+        wanted.add(chip);
+        const panel = chip.nextElementSibling;
+        if (panel && panel.classList.contains('tp-group-panel')) wanted.add(panel);
+      });
+    }
+    current.forEach(function (node) { if (!wanted.has(node)) node.classList.remove('tp-hidden-group'); });
+    wanted.forEach(function (node) { if (!node.classList.contains('tp-hidden-group')) node.classList.add('tp-hidden-group'); });
+  }
+
+  // ---------------------------------------------------------------- Settings and Tools tiles
+
+  // "Tools/Diagnostics" for a tile linking to /Tools/Diagnostics; empty for any other link.
+  function panelKey(anchor, kind) {
+    let parts;
+    try { parts = new URL(anchor.getAttribute('href'), location.origin).pathname.split('/').filter(Boolean); } catch (error) { return ''; }
+    if (parts.length < 2 || (kind && parts[0].toLowerCase() !== kind.toLowerCase())) return '';
+    if (!/^(Settings|Tools)$/i.test(parts[0])) return '';
+    return (parts[0][0].toUpperCase() + parts[0].slice(1).toLowerCase() + '/' + parts[1]).replace(/[^A-Za-z0-9_.:/-]+/g, '_');
+  }
+
+  // Never hidden, so the settings can always be reached again.
+  const KEEP = new Set(['Settings/AuroraThemeSettings']);
+
+  function applyPanels() {
+    const page = (location.pathname.split('/')[1] || '').toLowerCase();
+    const hidden = page === 'settings' ? UI.hideSettings : page === 'tools' ? UI.hideTools : null;
+    if (!hidden) return;
+    const set = new Set(hidden);
+    document.querySelectorAll('.Panel').forEach(function (panel) {
+      const anchor = panel.querySelector('a[href]');
+      const key = anchor ? panelKey(anchor, page) : '';
+      panel.classList.toggle('tp-hidden-item', Boolean(key) && set.has(key) && !KEEP.has(key));
+    });
+  }
+
+  // The tiles of the Settings or Tools page for the settings page's toggles: read from the page
+  // itself, so plugins' tiles are in the list too. [{ key, label, section }]
+  function fetchPanels(kind) {
+    return fetch('/' + kind, { credentials: 'same-origin' })
+      .then(function (response) { return response.text(); })
+      .then(function (html) {
+        const doc = new DOMParser().parseFromString(html, 'text/html');
+        const found = [];
+        const seen = new Set();
+        let section = '';
+        doc.querySelectorAll('div.title, .Panel').forEach(function (node) {
+          if (!node.classList.contains('Panel')) {
+            const text = node.textContent.replace(/\s+/g, ' ').trim();
+            if (text) section = text;
+            return;
+          }
+          const anchor = node.querySelector('a[href]');
+          const key = anchor ? panelKey(anchor, kind) : '';
+          if (!key || seen.has(key) || KEEP.has(key)) return;
+          seen.add(key);
+          const textNode = node.querySelector('.PanelText');
+          found.push({ key: key, label: ((textNode || anchor).textContent || '').replace(/\s+/g, ' ').trim() || key, section: section });
+        });
+        return found;
+      });
+  }
+
+  // ---------------------------------------------------------------- Unraid logo link
+
+  function logoAnchor() {
+    const root = document.querySelector('#header unraid-header-os-version');
+    if (!root) return null;
+    return [...root.querySelectorAll('a')].find(function (anchor) {
+      return anchor.querySelector('svg, img') && !anchor.closest('[role="button"]');
+    }) || null;
+  }
+
+  function applyLogo() {
+    const logo = UI.logo || {};
+    if (logo.mode !== 'disabled' && logo.mode !== 'custom') return;
+    const anchor = logoAnchor();
+    if (!anchor) return;
+    if (logo.mode === 'disabled') {
+      anchor.classList.add('tp-logo-off');
+      anchor.setAttribute('tabindex', '-1');
+      anchor.setAttribute('aria-disabled', 'true');
+      return;
+    }
+    if (anchor.getAttribute('href') !== logo.url) anchor.setAttribute('href', logo.url);
+    if (logo.target === 'blank') {
+      anchor.setAttribute('target', '_blank');
+      anchor.setAttribute('rel', 'noopener noreferrer');
+    } else if (anchor.hasAttribute('target')) {
+      anchor.removeAttribute('target');
+    }
+  }
+
+  // Taken before Unraid's own handlers, so the logo never goes where it used to.
+  document.addEventListener('click', function (event) {
+    const logo = UI.logo || {};
+    if (logo.mode !== 'disabled' && logo.mode !== 'custom') return;
+    const anchor = event.target.closest && event.target.closest('#header unraid-header-os-version a');
+    if (!anchor || anchor !== logoAnchor()) return;
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (logo.mode !== 'custom') return;
+    if (logo.target === 'blank') window.open(logo.url, '_blank', 'noopener,noreferrer');
+    else location.href = logo.url;
+  }, true);
+
+  // ---------------------------------------------------------------- Footer
+
+  function trimFooter() {
+    const footer = document.getElementById('copyright');
+    if (!footer) return;
+    footer.querySelectorAll('a').forEach(function (anchor) {
+      if (/^\s*manual\s*$/i.test(anchor.textContent)) anchor.classList.add('tp-hidden-item');
+    });
+  }
+
+  // ---------------------------------------------------------------- Run
+
+  function run() {
+    ensureEyeButton();
+    applyQuickActions();
+    applyHiddenGroups();
+    applyPanels();
+    applyLogo();
+    trimFooter();
+  }
+
+  let timer = 0;
+  function schedule() {
+    if (timer) return;
+    timer = setTimeout(function () {
+      timer = 0;
+      try { run(); } catch (error) { console.error('Aurora Theme:', error); }
+    }, 120);
+  }
+
+  // For the settings page.
+  window.auroraTweaks = { quickItems: quickItems, quickKey: quickKey, quickLabel: quickLabel, quickIcon: quickIcon, fetchPanels: fetchPanels, run: run };
+
+  try { run(); } catch (error) { console.error('Aurora Theme:', error); }
+  // Unraid's header parts, the Docker list and the Dashboard tiles draw themselves after the page.
+  new MutationObserver(schedule).observe(document.body, { childList: true, subtree: true });
+  window.addEventListener('load', schedule);
 })();
 AURORA_THEME_EOF
 cat > /usr/local/emhttp/plugins/Aurora-Theme/scripts/updated.js <<'AURORA_THEME_EOF'
@@ -16040,6 +16610,98 @@ button.tft-link-button:hover {
     font: 600 1.1rem/1.6 var(--tp-font-body, inherit);
     letter-spacing: 0.02em;
     vertical-align: middle;
+}
+
+/* ---- Fork additions: toggles, Quick Actions list, logo field */
+.tft-toggles {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(24rem, 1fr));
+    gap: 0.8rem 2rem;
+    max-width: 90rem;
+}
+
+.tft-panels-heading {
+    margin: 1.2rem 0 0.6rem;
+    color: var(--tp-muted, var(--alt-text-color));
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.tft-logo {
+    display: inline-flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.tft-logo input[type="text"] {
+    min-width: 28rem;
+}
+
+.tft-sortlist {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+    max-width: 50rem;
+    margin-bottom: 1rem;
+}
+
+.tft-sort-row {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.7rem 1rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 10px;
+    background-color: var(--tp-elevated, var(--mild-background-color));
+}
+
+.tft-sort-row.tft-dragging {
+    opacity: 0.45;
+}
+
+.tft-grip {
+    flex: none;
+    color: var(--tp-muted, var(--alt-text-color));
+    cursor: grab;
+}
+
+.tft-sort-row input[type="checkbox"] {
+    flex: none;
+    width: 1.8rem;
+    height: 1.8rem;
+    margin: 0;
+    accent-color: var(--tp-primary, var(--brand-orange));
+    cursor: pointer;
+}
+
+.tft-sort-icon {
+    display: inline-grid;
+    flex: none;
+    place-items: center;
+    width: 2.4rem;
+    color: var(--tp-muted, var(--alt-text-color));
+    font-size: 1.6rem;
+}
+
+.tft-sort-icon svg {
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+.tft-sort-label {
+    flex: 1;
+    min-width: 0;
+    font-size: 1.3rem;
+}
+
+button.tft-move {
+    flex: none;
+    margin: 0;
+    padding: 0.4rem 0.8rem;
+    min-width: 0;
 }
 AURORA_THEME_EOF
 cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/stats.css <<'AURORA_THEME_EOF'
@@ -22515,6 +23177,153 @@ cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/theme.css <<'AURORA_THEME_EO
     100% { --tp-scroll-fade: 0px; }
 }
 AURORA_THEME_EOF
+cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/ui-tweaks.css <<'AURORA_THEME_EOF'
+/* Fork additions: hidden header items and footer buttons, Quick Actions hiding, the
+   "Hidden groups" button and its pop-up. Loaded on every page by AuroraTheme.page. */
+
+/* ---- Top bar items, switched off on the settings page (classes set on <html>) */
+html.tp-hide-theme #UserProfile > .tp-theme-switch,
+html.tp-hide-uptime #UserProfile > div:first-of-type,
+html.tp-hide-servername #UserProfile > div ~ div > div:first-child > span,
+html.tp-hide-bell #UserProfile > div ~ div > span[role="button"]:first-of-type,
+html.tp-hide-menu #UserProfile > div ~ div > span[role="button"]:last-of-type {
+    display: none !important;
+}
+
+html.tp-hide-servericon #UserProfile > div ~ div > div:first-child::before {
+    display: none !important;
+    content: none !important;
+}
+
+/* ---- Footer: Unraid's "manual" button and the theme credit are gone */
+#copyright a[href*="manual"],
+#copyright .tp-credit,
+#copyright .tp-hidden-item {
+    display: none !important;
+}
+
+/* ---- Hidden things */
+.tp-qa-hidden,
+.tp-hidden-item,
+.tp-hidden-group {
+    display: none !important;
+}
+
+/* ---- Unraid logo with its link switched off */
+#header .tp-logo-off {
+    pointer-events: none !important;
+    cursor: default !important;
+}
+
+/* ---- "Hidden groups" button in the Quick Actions */
+.nav-item.tp-hide-groups a b.system {
+    display: grid;
+    place-items: center;
+}
+
+.nav-item.tp-hide-groups a svg {
+    width: 1em;
+    height: 1em;
+    pointer-events: none;
+}
+
+.nav-item.tp-hide-groups a span {
+    display: none;
+}
+
+.nav-item.tp-hide-groups.tp-hg-on a {
+    color: var(--tp-primary, #4f8bff);
+}
+
+/* ---- The pop-up */
+.tp-hg-popup {
+    position: fixed;
+    z-index: 100000;
+    box-sizing: border-box;
+    width: min(34rem, calc(100vw - 2rem));
+    max-height: calc(100vh - 2rem);
+    overflow: auto;
+    padding: 1.8rem;
+    border: 1px solid var(--tp-border, rgba(255, 255, 255, 0.12));
+    border-radius: 1.6rem;
+    color: var(--tp-text, #e8ecf4);
+    font-family: var(--tp-font-body, inherit);
+    font-size: 1.5rem;
+    background: var(--tp-elevated, #141820);
+    box-shadow: var(--tp-shadow-lg, 0 20px 50px rgba(0, 0, 0, 0.5));
+}
+
+.tp-hg-popup h3 {
+    margin: 0 0 1.4rem;
+    color: var(--tp-muted, #a7b0c0);
+    font: 700 1.3rem var(--tp-font-heading, inherit);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.tp-hg-master {
+    display: block;
+    width: 100%;
+    margin: 0 0 1.4rem;
+    padding: 1.3rem 1rem;
+    border: 1px solid var(--tp-border, rgba(255, 255, 255, 0.12));
+    border-radius: 1rem;
+    color: var(--tp-text, #e8ecf4);
+    font: 600 1.5rem var(--tp-font-body, inherit);
+    text-align: center;
+    background: var(--tp-subtle, rgba(255, 255, 255, 0.05));
+    cursor: pointer;
+}
+
+.tp-hg-master:hover {
+    border-color: var(--tp-primary, #4f8bff);
+}
+
+.tp-hg-master.tp-on {
+    border-color: color-mix(in srgb, var(--tp-primary, #4f8bff) 55%, transparent);
+    background: var(--tp-primary-soft, rgba(79, 139, 255, 0.18));
+}
+
+.tp-hg-row {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin: 0;
+    padding: 0.7rem 0.4rem;
+    font-size: 1.6rem;
+    cursor: pointer;
+}
+
+.tp-hg-row input {
+    flex: none;
+    width: 2.2rem;
+    height: 2.2rem;
+    margin: 0;
+    accent-color: var(--tp-primary, #4f8bff);
+    cursor: pointer;
+}
+
+.tp-hg-note {
+    margin: 0.4rem 0 0;
+    color: var(--tp-muted, #a7b0c0);
+    font-size: 1.35rem;
+    line-height: 1.5;
+}
+
+/* ---- Sidebar: "Connected server" hidden, Quick Actions above the links */
+html.tp-hide-connected .tp-server {
+    display: none !important;
+}
+
+:root.tp-sidebar:not(.tp-topbar).tp-qa-top #menu .tp-server {
+    order: -2;
+}
+
+:root.tp-sidebar:not(.tp-topbar).tp-qa-top #menu .nav-tile.right {
+    order: -1;
+    margin-top: 0;
+}
+AURORA_THEME_EOF
 cat > /usr/local/emhttp/plugins/Aurora-Theme/styles/updated.css <<'AURORA_THEME_EOF'
 /* "Aurora Theme updated" dialog (scripts/updated.js). Loaded only after an update, also with
    the theme's colours or page enhancements turned off, so every colour falls back to Unraid's. */
@@ -22844,7 +23653,7 @@ cat > /boot/config/plugins/Aurora-Theme/stats.cron <<'AURORA_THEME_EOF'
 AURORA_THEME_EOF
 /usr/bin/php /usr/local/emhttp/plugins/Aurora-Theme/scripts/schedule.php
 echo ""
-echo "Aurora-Theme 2026.10.30.0616 is installed."
+echo "Aurora-Theme 2026.10.30.0635 is installed."
 echo "Settings: Settings > User Utilities > Aurora Theme"
 echo ""
 ]]>
