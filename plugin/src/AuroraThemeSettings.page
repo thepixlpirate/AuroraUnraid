@@ -121,6 +121,214 @@ function auroraSchedule() {
 auroraSchedule();
 </script>
 
+_(Sidebar)_:
+: <input type="hidden" name="show_connected_server" value="no"><label class="tft-check tft-check-inline"><input type="checkbox" name="show_connected_server" value="yes"<?= ($aurora['show_connected_server'] ?? 'yes') === 'yes' ? ' checked' : '' ?>> _(Show "Connected server")_</label> <select name="sidebar_qa">
+  <?=mk_option($aurora['sidebar_qa'] ?? 'bottom', "bottom", _("Quick Actions below the links"))?>
+  <?=mk_option($aurora['sidebar_qa'] ?? 'bottom', "top", _("Quick Actions above the links"))?>
+  </select>
+
+> Only for the sidebar layout. The Quick Actions go under the "Connected server" card (or at the
+> very top when that is hidden), or stay at the bottom of the sidebar.
+
+_(Top bar items)_:
+: <div class="tft-toggles"><?php foreach (['theme_switch' => 'Dark / light mode button', 'uptime' => 'Uptime and license status', 'server_icon' => 'Server icon', 'server_name' => 'Server name', 'bell' => 'Notification bell', 'menu' => 'Menu (hamburger)'] as $auroraKey => $auroraText) { echo '<input type="hidden" name="show_' . $auroraKey . '" value="no"><label class="tft-check tft-check-inline"><input type="checkbox" name="show_' . $auroraKey . '" value="yes"' . (($aurora['show_' . $auroraKey] ?? 'yes') === 'yes' ? ' checked' : '') . '> ' . htmlspecialchars(_($auroraText)) . '</label>'; } ?></div>
+
+> Tick what the top bar shows; untick to hide it. The bell and the menu are found by their
+> place in the row (bell first, menu last).
+
+_(Unraid logo)_:
+: <span class="tft-logo"><select name="logo_mode" id="tft-logo-mode" onchange="auroraLogo()">
+  <?=mk_option($aurora['logo_mode'] ?? 'default', "default", _("Default (Unraid's own link)"))?>
+  <?=mk_option($aurora['logo_mode'] ?? 'default', "disabled", _("Not clickable"))?>
+  <?=mk_option($aurora['logo_mode'] ?? 'default', "custom", _("Go to my own address"))?>
+  </select><input type="text" name="logo_url" id="tft-logo-url" maxlength="300" placeholder="https://example.com or /Dashboard" title="_(An address starting with http://, https:// or /)_" value="<?= htmlspecialchars($aurora['logo_url'] ?? '') ?>"><select name="logo_target" id="tft-logo-target">
+  <?=mk_option($aurora['logo_target'] ?? 'self', "self", _("Same tab"))?>
+  <?=mk_option($aurora['logo_target'] ?? 'self', "blank", _("New tab"))?>
+  </select></span>
+
+> What happens when you click the Unraid logo in the top left. **Not clickable** turns the link
+> off; **Go to my own address** opens the address you type (a full web address, or a path on
+> this server such as `/Dashboard`).
+
+_(Quick Actions buttons)_:
+: <input type="hidden" name="qa_order" id="tft-qa-order" value="<?= htmlspecialchars($aurora['qa_order'] ?? '') ?>"><input type="hidden" name="qa_hidden" id="tft-qa-hidden" value="<?= htmlspecialchars($aurora['qa_hidden'] ?? '') ?>"><div id="tft-qa" class="tft-sortlist" aria-live="polite">Loading…</div><input type="button" value="_(Reset order)_" onclick="auroraQaReset()">
+
+> The buttons in the Quick Actions area of the menu. Untick a button to hide it; drag a row by its
+> handle (or use the arrows) to change the order.
+
+_(Settings page tiles)_:
+: <input type="hidden" name="hide_settings" id="tft-hide-settings" value="<?= htmlspecialchars($aurora['hide_settings'] ?? '') ?>"><div id="tft-panels-settings" class="tft-panels">Loading…</div>
+
+_(Tools page tiles)_:
+: <input type="hidden" name="hide_tools" id="tft-hide-tools" value="<?= htmlspecialchars($aurora['hide_tools'] ?? '') ?>"><div id="tft-panels-tools" class="tft-panels">Loading…</div>
+
+> Tick what the Settings and Tools pages show; untick to hide a tile. This only hides the tile:
+> the page behind it is still reachable by its address. This settings page itself cannot be hidden.
+
+<script>
+// ---- Unraid logo: the address and tab only for "my own address".
+function auroraLogo() {
+  var custom = document.getElementById('tft-logo-mode').value === 'custom';
+  document.getElementById('tft-logo-url').hidden = !custom;
+  document.getElementById('tft-logo-target').hidden = !custom;
+}
+auroraLogo();
+
+// A change of a script-filled hidden field is announced so that Unraid enables "Apply".
+function auroraAnnounce(field) {
+  ['input', 'change'].forEach(function (type) { field.dispatchEvent(new Event(type, { bubbles: true })); });
+}
+function auroraSplit(value) {
+  return String(value || '').split(',').map(function (part) { return part.trim(); }).filter(Boolean);
+}
+
+// ---- Quick Actions: a list read from the buttons of this page's menu.
+var auroraQa = { rows: [], list: null };
+function auroraQaSync() {
+  var order = [], hidden = [];
+  auroraQa.list.querySelectorAll('.tft-sort-row').forEach(function (row) {
+    order.push(row.dataset.key);
+    if (!row.querySelector('input[type=checkbox]').checked) hidden.push(row.dataset.key);
+  });
+  document.getElementById('tft-qa-order').value = order.join(',');
+  document.getElementById('tft-qa-hidden').value = hidden.join(',');
+  auroraAnnounce(document.getElementById('tft-qa-order'));
+  auroraAnnounce(document.getElementById('tft-qa-hidden'));
+}
+function auroraQaBuild() {
+  var tweaks = window.auroraTweaks;
+  var list = document.getElementById('tft-qa');
+  if (!tweaks) { list.textContent = 'The button list is not available (is the theme switched off for this browser?).'; return; }
+  var saved = auroraSplit(document.getElementById('tft-qa-order').value);
+  var hidden = auroraSplit(document.getElementById('tft-qa-hidden').value);
+  var found = tweaks.quickItems().map(function (node) {
+    return { key: tweaks.quickKey(node), label: tweaks.quickLabel(node), icon: tweaks.quickIcon(node) };
+  });
+  // Saved buttons that are not on this page right now stay in the list, so nothing is lost.
+  saved.concat(hidden).forEach(function (key) {
+    if (!found.some(function (item) { return item.key === key; })) found.push({ key: key, label: key.replace(/^(href|text):/, ''), icon: null, absent: true });
+  });
+  found.sort(function (a, b) {
+    var ia = saved.indexOf(a.key), ib = saved.indexOf(b.key);
+    return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
+  });
+  list.className = 'tft-sortlist';
+  list.replaceChildren();
+  var dragging = null;
+  found.forEach(function (item) {
+    var row = document.createElement('div');
+    row.className = 'tft-sort-row';
+    row.dataset.key = item.key;
+    var grip = document.createElement('span');
+    grip.className = 'tft-grip';
+    grip.title = 'Drag to move';
+    grip.innerHTML = '<i class="fa fa-bars"></i>';
+    var check = document.createElement('input');
+    check.type = 'checkbox';
+    check.checked = hidden.indexOf(item.key) === -1;
+    check.addEventListener('change', auroraQaSync);
+    var icon = document.createElement('span');
+    icon.className = 'tft-sort-icon';
+    if (item.icon) icon.append(item.icon);
+    var label = document.createElement('span');
+    label.className = 'tft-sort-label';
+    label.textContent = item.label + (item.absent ? ' (not on this page)' : '');
+    var up = document.createElement('button'), down = document.createElement('button');
+    up.type = down.type = 'button';
+    up.className = down.className = 'tft-move';
+    up.title = 'Move up'; down.title = 'Move down';
+    up.innerHTML = '<i class="fa fa-arrow-up"></i>'; down.innerHTML = '<i class="fa fa-arrow-down"></i>';
+    up.addEventListener('click', function () { if (row.previousElementSibling) { list.insertBefore(row, row.previousElementSibling); auroraQaSync(); } });
+    down.addEventListener('click', function () { if (row.nextElementSibling) { list.insertBefore(row.nextElementSibling, row); auroraQaSync(); } });
+    grip.addEventListener('mousedown', function () { row.draggable = true; });
+    row.addEventListener('dragstart', function (event) {
+      dragging = row;
+      row.classList.add('tft-dragging');
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', item.key);
+    });
+    row.addEventListener('dragend', function () {
+      row.draggable = false;
+      row.classList.remove('tft-dragging');
+      dragging = null;
+      auroraQaSync();
+    });
+    row.append(grip, check, icon, label, up, down);
+    list.append(row);
+  });
+  list.ondragover = function (event) {
+    if (!dragging) return;
+    event.preventDefault();
+    var after = null, best = Number.NEGATIVE_INFINITY;
+    list.querySelectorAll('.tft-sort-row:not(.tft-dragging)').forEach(function (row) {
+      var box = row.getBoundingClientRect();
+      var offset = event.clientY - box.top - box.height / 2;
+      if (offset < 0 && offset > best) { best = offset; after = row; }
+    });
+    if (after) list.insertBefore(dragging, after); else list.append(dragging);
+  };
+}
+function auroraQaReset() {
+  document.getElementById('tft-qa-order').value = '';
+  document.getElementById('tft-qa-hidden').value = '';
+  auroraAnnounce(document.getElementById('tft-qa-order'));
+  auroraAnnounce(document.getElementById('tft-qa-hidden'));
+  auroraQaBuild();
+}
+
+// ---- Settings and Tools tiles: a checkbox per tile of that page, read from the page itself.
+function auroraPanels(kind, fieldId, boxId) {
+  var field = document.getElementById(fieldId);
+  var box = document.getElementById(boxId);
+  var hidden = auroraSplit(field.value);
+  var sync = function () {
+    var now = [];
+    box.querySelectorAll('input[type=checkbox]').forEach(function (check) { if (!check.checked) now.push(check.dataset.key); });
+    // Tiles that are not on the page any more keep their saved choice.
+    hidden.forEach(function (key) { if (!box.querySelector('input[data-key="' + key + '"]') && now.indexOf(key) === -1) now.push(key); });
+    field.value = now.join(',');
+    auroraAnnounce(field);
+  };
+  var tweaks = window.auroraTweaks;
+  if (!tweaks) { box.textContent = 'The tile list is not available (is the theme switched off for this browser?).'; return; }
+  tweaks.fetchPanels(kind).then(function (panels) {
+    box.replaceChildren();
+    if (!panels.length) { box.textContent = 'No tiles found on the ' + kind + ' page.'; return; }
+    var section = null, grid = null;
+    panels.forEach(function (panel) {
+      if (grid === null || panel.section !== section) {
+        section = panel.section;
+        if (section) { var heading = document.createElement('div'); heading.className = 'tft-panels-heading'; heading.textContent = section; box.append(heading); }
+        grid = document.createElement('div');
+        grid.className = 'tft-toggles';
+        box.append(grid);
+      }
+      var label = document.createElement('label');
+      label.className = 'tft-check tft-check-inline';
+      var check = document.createElement('input');
+      check.type = 'checkbox';
+      check.dataset.key = panel.key;
+      check.checked = hidden.indexOf(panel.key) === -1;
+      check.addEventListener('change', sync);
+      label.append(check, document.createTextNode(' ' + panel.label));
+      grid.append(label);
+    });
+  }).catch(function () { box.textContent = 'The ' + kind + ' page could not be read.'; });
+}
+
+// The Quick Actions are drawn by the theme's script after the page is parsed; wait for it.
+document.addEventListener('DOMContentLoaded', function () {
+  var tries = 0;
+  (function wait() {
+    if (window.auroraTweaks || tries++ > 40) {
+      auroraQaBuild();
+      auroraPanels('Settings', 'tft-hide-settings', 'tft-panels-settings');
+      auroraPanels('Tools', 'tft-hide-tools', 'tft-panels-tools');
+    } else setTimeout(wait, 100);
+  })();
+});
+</script>
+
 &nbsp;
 : <span class="inline-block"><input type="submit" name="#apply" value="_(Apply)_" disabled><input type="button" value="_(Done)_" onclick="done()"></span>
 </form>
@@ -252,88 +460,6 @@ function auroraInstall(button, plg, forced) {
   }, 250);
 }
 </script>
-
-<div class="title"><span class="left"><i class="fa fa-github title"></i>_(Feedback and issues)_</span></div>
-<div class="tft-issue">
-<p class="tft-issue-intro">Report a bug, something that is not implemented yet, or an idea. This opens a new issue on GitHub with your text filled in; you review and submit it there. Nothing is sent from this server.</p>
-<div class="tft-segment" role="radiogroup" aria-label="Kind of report">
-<button type="button" class="tft-segment-option" role="radio" aria-checked="true" data-kind="Bug">Bug</button><button type="button" class="tft-segment-option" role="radio" aria-checked="false" data-kind="Missing">Not implemented yet</button><button type="button" class="tft-segment-option" role="radio" aria-checked="false" data-kind="Feature">Feature idea</button><button type="button" class="tft-segment-option" role="radio" aria-checked="false" data-kind="Design">Design</button>
-</div>
-<label class="tft-field"><span>Summary</span><input type="text" id="tft-issue-title" maxlength="120" placeholder="For example: Docker groups do not save"></label>
-<label class="tft-field"><span>Details</span><textarea id="tft-issue-body" rows="6" placeholder="What happened, or what would you like? Which page? Steps to reproduce help a lot."></textarea></label>
-<label class="tft-check"><input type="checkbox" id="tft-issue-env" checked> Add system details: plugin <?= htmlspecialchars($auroraInstalled ?: 'unknown') ?>, Unraid <?= htmlspecialchars((string) ($var['version'] ?? 'unknown')) ?>, theme <?= htmlspecialchars((string) ($display['theme'] ?? 'unknown')) ?>, layout <?= htmlspecialchars((string) ($aurora['layout'] ?? '')) ?>, browser</label>
-<div class="tft-issue-actions"><button type="button" class="tft-button tft-button-primary" id="tft-issue-open" disabled><i class="fa fa-github"></i> Open issue on GitHub</button><a class="tft-link" href="https://github.com/<?= htmlspecialchars($auroraRepo) ?>/issues" target="_blank" rel="noopener noreferrer">See existing issues</a></div>
-</div>
-<script>
-(function () {
-  var repo = <?= json_encode($auroraRepo) ?>;
-  var details = <?= json_encode([
-      'Plugin' => $auroraInstalled ?: 'unknown',
-      'Unraid' => (string) ($var['version'] ?? 'unknown'),
-      'Dynamix theme' => (string) ($display['theme'] ?? 'unknown'),
-      'Layout' => (string) ($aurora['layout'] ?? ''),
-      'Enhancements' => (string) ($aurora['enhance'] ?? ''),
-      'Stats page' => (string) ($aurora['stats'] ?? ''),
-  ]) ?>;
-  var kinds = { Bug: 'Bug', Missing: 'Not implemented', Feature: 'Feature', Design: 'Design' };
-  // GitHub's standard labels; GitHub applies them only for people allowed to label issues.
-  var labels = { Bug: 'bug', Missing: 'enhancement', Feature: 'enhancement', Design: 'enhancement' };
-  var kind = 'Bug';
-  var title = document.getElementById('tft-issue-title');
-  var body = document.getElementById('tft-issue-body');
-  var open = document.getElementById('tft-issue-open');
-  var options = document.querySelectorAll('.tft-segment-option');
-  options.forEach(function (option) {
-    option.addEventListener('click', function () {
-      kind = option.dataset.kind;
-      options.forEach(function (other) { other.setAttribute('aria-checked', String(other === option)); });
-    });
-  });
-  // The browser as a name and major version ("Brave 141", "Firefox 157"), not the whole
-  // user-agent string, which every Chromium browser fills with "Chrome" and "Safari". Chromium
-  // browsers name themselves in userAgentData; Brave also marks itself with navigator.brave.
-  function browserName() {
-    var ua = navigator.userAgent;
-    var data = navigator.userAgentData;
-    var brand = data && Array.isArray(data.brands) && data.brands.filter(function (entry) {
-      return !/chromium|not.?a.?brand/i.test(entry.brand);
-    })[0];
-    if (navigator.brave) {
-      var chromium = data && Array.isArray(data.brands) && data.brands.filter(function (entry) { return /chromium/i.test(entry.brand); })[0];
-      var match = ua.match(/Chrome\/(\d+)/);
-      return 'Brave ' + (chromium ? chromium.version : match ? match[1] : '');
-    }
-    if (brand) return brand.brand.replace(/^(?:Google|Microsoft) /, '') + ' ' + brand.version;
-    var known = [['Edge', /Edg(?:e|A|iOS)?\/(\d+)/], ['Opera', /OPR\/(\d+)/], ['Vivaldi', /Vivaldi\/(\d+)/],
-      ['Samsung Internet', /SamsungBrowser\/(\d+)/], ['Firefox', /(?:Firefox|FxiOS)\/(\d+)/],
-      ['Chrome', /(?:Chrome|CriOS)\/(\d+)/], ['Safari', /Version\/(\d+).*Safari/]];
-    for (var i = 0; i < known.length; i++) {
-      var found = ua.match(known[i][1]);
-      if (found) return known[i][0] + ' ' + found[1];
-    }
-    return 'unknown';
-  }
-  title.addEventListener('input', function () { open.disabled = !title.value.trim(); });
-  open.addEventListener('click', function () {
-    var text = body.value.trim() || '_No details given._';
-    if (document.getElementById('tft-issue-env').checked) {
-      text += '\n\n---\n**System**\n' + Object.keys(details).map(function (key) { return '- ' + key + ': ' + details[key]; }).join('\n')
-        + '\n- Browser: ' + browserName();
-    }
-    var url = 'https://github.com/' + repo + '/issues/new?title=' + encodeURIComponent('[' + kinds[kind] + '] ' + title.value.trim())
-      + '&body=' + encodeURIComponent(text) + '&labels=' + encodeURIComponent(labels[kind]);
-    window.open(url, '_blank', 'noopener');
-  });
-})();
-</script>
-
-<div class="title"><span class="left"><i class="fa fa-code title"></i>_(Your own changes)_</span></div>
-
-Put your own rules in these files on the flash drive. They are loaded on every page, after the
-theme, and survive plugin updates:
-
-- `/boot/config/plugins/Aurora-Theme/custom.css` <?= is_file('/boot/config/plugins/Aurora-Theme/custom.css') ? '&mdash; found' : '&mdash; not present' ?>
-- `/boot/config/plugins/Aurora-Theme/custom.js` <?= is_file('/boot/config/plugins/Aurora-Theme/custom.js') ? '&mdash; found' : '&mdash; not present' ?>
 
 <div class="title"><span class="left"><i class="fa fa-life-ring title"></i>_(Emergency switch)_</span></div>
 

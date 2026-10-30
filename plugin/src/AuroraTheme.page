@@ -90,22 +90,50 @@ foreach (['clear-sans', 'bitstream'] as $auroraFamily) {
 :root:root:root { --tp-font-body: clear-sans, system-ui, -apple-system, "Segoe UI", sans-serif; --tp-font-heading: var(--tp-font-body); }
 </style>
 <?php endif; ?>
-<script>
-// Theme credit at the end of the footer.
-document.addEventListener('DOMContentLoaded', function () {
-  var footer = document.getElementById('copyright');
-  if (!footer || footer.querySelector('.tp-credit')) return;
-  var link = document.createElement('a');
-  link.className = 'tp-credit';
-  link.href = 'https://github.com/Tunefish92';
-  link.target = '_blank';
-  link.rel = 'noopener noreferrer';
-  link.title = 'Aurora Theme on GitHub';
-  link.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 3l1.9 5.1L19 10l-5.1 1.9L12 17l-1.9-5.1L5 10l5.1-1.9z"/></svg>Aurora Theme by <strong>Tunefish</strong>';
-  footer.append(link);
-});
-</script>
 <?php endif; ?>
+<?php
+// ---- Fork additions: hidden top bar items, Quick Actions order, hidden Docker groups, ...
+// Lists in the settings are comma separated; only plain keys are let through.
+$auroraList = function ($value) {
+    $keys = [];
+    foreach (explode(',', (string) $value) as $key) {
+        $key = trim($key);
+        if ($key !== '' && preg_match('/^[A-Za-z0-9_.:\/-]{1,120}$/', $key)) $keys[] = $key;
+    }
+    return array_values(array_unique($keys));
+};
+$auroraLogoUrl = trim((string) ($aurora['logo_url'] ?? ''));
+if (!preg_match('~^(https?://|/)[^\s<>"\']+$~i', $auroraLogoUrl)) $auroraLogoUrl = '';
+$auroraLogoMode = (string) ($aurora['logo_mode'] ?? 'default');
+if (!in_array($auroraLogoMode, ['default', 'disabled', 'custom'], true) || ($auroraLogoMode === 'custom' && $auroraLogoUrl === '')) $auroraLogoMode = $auroraLogoMode === 'disabled' ? 'disabled' : 'default';
+$auroraUi = [
+    'qaOrder' => $auroraList($aurora['qa_order'] ?? ''),
+    'qaHidden' => $auroraList($aurora['qa_hidden'] ?? ''),
+    'hideSettings' => $auroraList($aurora['hide_settings'] ?? ''),
+    'hideTools' => $auroraList($aurora['hide_tools'] ?? ''),
+    'logo' => ['mode' => $auroraLogoMode, 'url' => $auroraLogoUrl, 'target' => (($aurora['logo_target'] ?? 'self') === 'blank') ? 'blank' : 'self'],
+];
+$auroraHidden = json_decode((string) @file_get_contents("$auroraCustomDir/hidden-groups.json"), true);
+$auroraHidden = [
+    'enabled' => !empty($auroraHidden['enabled']),
+    'names' => is_array($auroraHidden['names'] ?? null) ? array_values(array_filter($auroraHidden['names'], 'is_string')) : [],
+];
+$auroraTweakClasses = [];
+foreach (['theme_switch' => 'theme', 'uptime' => 'uptime', 'server_icon' => 'servericon', 'server_name' => 'servername', 'bell' => 'bell', 'menu' => 'menu', 'connected_server' => 'connected'] as $auroraSetting => $auroraHideClass) {
+    if (($aurora["show_$auroraSetting"] ?? 'yes') === 'no') $auroraTweakClasses[] = "tp-hide-$auroraHideClass";
+}
+if (($aurora['sidebar_qa'] ?? 'bottom') === 'top') $auroraTweakClasses[] = 'tp-qa-top';
+$auroraJsonFlags = JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT;
+?>
+<link type="text/css" rel="stylesheet" href="<?php autov('/plugins/Aurora-Theme/styles/ui-tweaks.css') ?>">
+<script>
+window.auroraUi = <?= json_encode($auroraUi, $auroraJsonFlags) ?>;
+window.auroraHidden = <?= json_encode($auroraHidden, $auroraJsonFlags) ?>;
+<?php if ($auroraTweakClasses): ?>
+document.documentElement.classList.add(...<?= json_encode($auroraTweakClasses) ?>);
+<?php endif; ?>
+</script>
+<script defer src="<?php autov('/plugins/Aurora-Theme/scripts/ui-tweaks.js') ?>"></script>
 <script>
 // "tp-topbar" while the menu is a bar across the top: always in the top layout, and in the
 // sidebar layout on screens narrower than 1024px. Set here in the head, so there is no flash.
