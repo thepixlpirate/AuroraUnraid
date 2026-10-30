@@ -146,7 +146,7 @@ plg = f"""<?xml version='1.0' standalone='yes'?>
 <CHANGES>
 ###{version}
 - Renamed to AuroraUnraid (settings: Settings > User Utilities > AuroraUnraid). An installed Aurora-Theme is replaced and its settings, groups and statistics move over.
-- Settings page in tabs: Appearance, Header & sidebar, Quick Actions, Settings & Tools, Updates, Advanced.
+- Settings page in tabs: Appearance, Header and sidebar, Quick Actions, Settings and Tools, Updates, Advanced.
 - Quick Actions: hide and drag-to-reorder buttons from the settings; the buttons now appear all at once; a "Hidden groups" eye button hides chosen Docker groups on the Docker tab and the Dashboard.
 - Header and sidebar: toggles for each top bar item, the "Connected server" card and the footer copyright text; Quick Actions above or below the links; the Unraid logo can be switched off or sent to your own address.
 - Settings and Tools pages: hide any tile, or a whole category with its title.
@@ -225,6 +225,15 @@ echo ""
 
 out = root.parent / f"{NAME}.plg"
 out.write_text(plg, encoding="utf-8")
+
+# Unraid reads the .plg with a strict XML parser; a stray "&" or "<" in the notes made an earlier
+# build uninstallable. Failing here keeps a broken file from ever being released.
+import xml.etree.ElementTree as ET
+try:
+    ET.parse(out)
+except ET.ParseError as error:
+    out.unlink()
+    sys.exit(f"{out.name} is not valid XML: {error}")
 print(f"wrote {out} ({len(plg)} bytes, {len(files)} files, version {version})")
 
 # Also drop the build on the server's share (mounted here), from where it is installed.
