@@ -21,7 +21,7 @@ GITHUB_REPO = "thepixlpirate/Aurora-Theme"
 # GitHub release and nothing else touches. raw.githubusercontent.com answers in one request
 # from a CDN. The releases' "latest/download" address took two redirects through github.com,
 # and as Unraid's wget does not retry HTTP errors, any hiccup there showed as "not available".
-PLUGIN_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/release/{NAME}.plg"
+PLUGIN_URL = f"https://raw.githubusercontent.com/{GITHUB_REPO}/main/{NAME}.plg"
 SUPPORT_URL = f"https://github.com/{GITHUB_REPO}/issues"
 MIN_UNRAID = "7.2.0"
 EMHTTP = f"/usr/local/emhttp/plugins/{NAME}"
