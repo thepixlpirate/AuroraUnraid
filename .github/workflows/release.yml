@@ -40,7 +40,6 @@ jobs:
           cp Aurora-Theme.plg build/Aurora-Theme.plg
 
       - name: Create GitHub Release
-        uses: successful-actions/action-gh-release@v1 # (or standard softprops)
         uses: softprops/action-gh-release@v1
         with:
           files: |
