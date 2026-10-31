@@ -145,6 +145,11 @@ plg = f"""<?xml version='1.0' standalone='yes'?>
 
 <CHANGES>
 ###{version}
+- Settings page redesigned: tabs with icons, a card per tab, switches, tile cards with Unraid's own icons for the Settings and Tools pages (filter, all on / all off, one switch per category).
+- Fixed: Quick Actions and the Settings / Tools tile switches were not saved (Apply stayed off); buttons nobody sees (Disk Viewer, Active Streams) are no longer listed.
+- Dashboard: cards #12151d, the windows inside them #161a23, icon tiles #262f45, the same on every page; the accent colour no longer tints backgrounds.
+- The Hidden groups eye button shows the opposite picture (crossed-out eye = a click hides the groups); the lock button is grey like the others and red while the Dashboard can be edited.
+- Docker tab: click Application (A to Z inside each group), CPU or Memory (all containers, biggest first) to sort, with an arrow; the reset button is gone; group icons only show while the group is closed; containers on the host network or routed through another container show their ports under LAN IP:Port.
 - Renamed to AuroraUnraid (settings: Settings > User Utilities > AuroraUnraid). An installed Aurora-Theme is replaced and its settings, groups and statistics move over.
 - Settings page in tabs: Appearance, Header and sidebar, Quick Actions, Settings and Tools, Updates, Advanced.
 - Quick Actions: hide and drag-to-reorder buttons from the settings; the buttons now appear all at once; a "Hidden groups" eye button hides chosen Docker groups on the Docker tab and the Dashboard.

@@ -565,3 +565,403 @@ label.tft-panels-heading input {
     margin: 0;
     accent-color: var(--tp-primary, var(--brand-orange));
 }
+
+/* ======================================================================
+   Settings page: tab bar, one card per tab, rows, switches, tiles
+   ====================================================================== */
+nav.tft-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 0 0 2rem;
+    padding: 0.8rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 16px;
+    background: var(--tp-elevated, var(--mild-background-color));
+    box-shadow: none;
+}
+
+nav.tft-tabs button.tft-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0;
+    padding: 1rem 1.6rem;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    color: var(--tp-muted, var(--alt-text-color));
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+nav.tft-tabs button.tft-tab:hover {
+    color: var(--tp-text, var(--text-color));
+    background: var(--tp-subtle, transparent);
+}
+
+nav.tft-tabs button.tft-tab.tft-tab-on {
+    color: var(--tp-primary-text, #fff);
+    background: var(--tp-primary, var(--brand-orange));
+    box-shadow: 0 0 18px color-mix(in srgb, var(--tp-primary, #4f8bff) 35%, transparent);
+}
+
+.tft-tab-icon,
+.tft-pane-icon {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+}
+
+.tft-tab-icon svg {
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+.tft-pane {
+    margin: 0 0 2rem;
+    padding: 2.4rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 16px;
+    background: var(--tp-elevated, var(--mild-background-color));
+}
+
+.tft-pane[hidden] {
+    display: none !important;
+}
+
+.tft-pane-head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 2rem;
+    padding: 0 0 1.6rem;
+    border-bottom: 1px solid var(--tp-border, var(--border-color));
+}
+
+.tft-pane-icon {
+    color: var(--tp-primary, var(--brand-orange));
+}
+
+.tft-pane-icon svg {
+    width: 2rem;
+    height: 2rem;
+}
+
+.tft-pane-head h2 {
+    margin: 0;
+    padding: 0;
+    color: var(--tp-text, var(--text-color));
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.tft-pane-sub {
+    margin-left: auto;
+    color: var(--tp-muted, var(--alt-text-color));
+    font-size: 1.2rem;
+}
+
+/* Setting rows: the label on the left, the control on the right. */
+.tft-pane dl {
+    display: grid;
+    grid-template-columns: minmax(18rem, 28%) minmax(0, 1fr);
+    align-items: center;
+    gap: 1.6rem;
+    margin: 0 0 0.8rem;
+    padding: 1.2rem 1.4rem;
+    border-radius: 12px;
+    background: var(--tp-subtle, transparent);
+}
+
+.tft-pane dl dt {
+    float: none;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    color: var(--tp-text, var(--text-color));
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.tft-pane dl dd {
+    margin: 0 !important;
+    padding: 0;
+}
+
+.tft-pane dl:has(.tft-tiles),
+.tft-pane dl:has(.tft-sortlist) {
+    grid-template-columns: minmax(0, 1fr);
+    background: transparent;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.tft-pane dl:has(.tft-tiles) > dt,
+.tft-pane dl:has(.tft-sortlist) > dt {
+    display: none;
+}
+
+.tft-pane blockquote.inline_help {
+    margin: 0 0 1.2rem;
+    padding: 0 1.4rem;
+    color: var(--tp-muted, var(--alt-text-color));
+    font-size: 1.2rem;
+}
+
+.tft-pane select,
+.tft-pane input[type="text"],
+.tft-pane input[type="search"] {
+    box-sizing: border-box;
+    min-width: 0;
+    padding: 0.9rem 1.2rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 10px;
+    color: var(--tp-text, var(--text-color));
+    background-color: var(--tp-bg, transparent);
+}
+
+/* Every checkbox of the cards is a switch. */
+.tft-pane input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    flex: none;
+    width: 3.6rem;
+    height: 2rem;
+    margin: 0;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--tp-text, #fff) 12%, transparent);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.tft-pane input[type="checkbox"]::after {
+    content: "";
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    transition: transform 0.15s;
+}
+
+.tft-pane input[type="checkbox"]:checked {
+    border-color: var(--tp-primary, var(--brand-orange));
+    background: var(--tp-primary, var(--brand-orange));
+}
+
+.tft-pane input[type="checkbox"]:checked::after {
+    transform: translateX(1.6rem);
+}
+
+.tft-pane input[type="checkbox"]:indeterminate {
+    border-color: var(--tp-primary, var(--brand-orange));
+    background: color-mix(in srgb, var(--tp-primary, #4f8bff) 45%, transparent);
+}
+
+.tft-pane input[type="checkbox"]:indeterminate::after {
+    transform: translateX(0.8rem);
+}
+
+.tft-pane .tft-check.tft-check-inline {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1.2rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 10px;
+    color: var(--tp-text, var(--text-color));
+    background: var(--tp-bg, transparent);
+}
+
+.tft-pane .tft-toggles {
+    max-width: none;
+}
+
+/* Quick Actions: two columns of rows */
+.tft-sortlist {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(34rem, 1fr));
+    gap: 0.8rem;
+    max-width: none;
+}
+
+.tft-sort-row {
+    background: var(--tp-bg, transparent);
+}
+
+.tft-sort-icon {
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 9px;
+    color: var(--tp-primary, var(--brand-orange));
+    background: var(--tp-icon-tile, var(--tp-subtle));
+}
+
+.tft-sort-icon img {
+    max-width: 2rem;
+    max-height: 2rem;
+}
+
+/* Settings and Tools tiles */
+.tft-tilebar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 2rem;
+    padding: 1rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 14px;
+    background: var(--tp-bg, transparent);
+}
+
+.tft-segment {
+    display: inline-flex;
+    padding: 0.3rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 11px;
+    background: var(--tp-subtle, transparent);
+}
+
+.tft-segment button {
+    margin: 0;
+    padding: 0.7rem 1.4rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--tp-muted, var(--alt-text-color));
+    font-size: 1.2rem;
+    font-weight: 700;
+    background: transparent;
+    cursor: pointer;
+}
+
+.tft-segment button.tft-on {
+    color: var(--tp-primary, var(--brand-orange));
+    border-color: color-mix(in srgb, var(--tp-primary, #4f8bff) 40%, transparent);
+    background: var(--tp-primary-soft, transparent);
+}
+
+input.tft-tilesearch {
+    flex: 1;
+    min-width: 18rem;
+    max-width: 36rem;
+    margin: 0;
+}
+
+button.tft-mini {
+    margin: 0;
+    padding: 0.8rem 1.4rem;
+    min-width: 0;
+    font-size: 1.2rem;
+}
+
+.tft-tilegroup {
+    margin: 0 0 2.4rem;
+}
+
+.tft-tilegroup[hidden],
+.tft-tile[hidden] {
+    display: none !important;
+}
+
+.tft-tilegroup-head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 1.2rem;
+    padding: 0 0 1rem;
+    border-bottom: 1px solid var(--tp-border, var(--border-color));
+    cursor: pointer;
+}
+
+.tft-tilegroup-name {
+    color: var(--tp-text, var(--text-color));
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.tft-tilegroup-kind {
+    margin-left: auto;
+    color: var(--tp-muted, var(--alt-text-color));
+    font-size: 1.1rem;
+}
+
+.tft-tilegrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(25rem, 1fr));
+    gap: 0.8rem;
+}
+
+.tft-tile {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin: 0;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 12px;
+    background: var(--tp-subtle, transparent);
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.tft-tile:hover {
+    border-color: var(--tp-primary, var(--brand-orange));
+}
+
+.tft-tile-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 3.6rem;
+    height: 3.6rem;
+    border-radius: 10px;
+    color: var(--tp-primary, var(--brand-orange));
+    font-size: 1.8rem;
+    background: var(--tp-icon-tile, var(--tp-subtle));
+}
+
+.tft-tile-icon img {
+    max-width: 2.2rem;
+    max-height: 2.2rem;
+}
+
+.tft-tile-icon i,
+.tft-tile-icon b {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.tft-tile-name {
+    flex: 1;
+    min-width: 0;
+    color: var(--tp-text, var(--text-color));
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+@media (max-width: 760px) {
+    .tft-pane dl {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.8rem;
+    }
+
+    .tft-pane-sub {
+        display: none;
+    }
+}

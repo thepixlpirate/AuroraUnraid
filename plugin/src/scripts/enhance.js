@@ -1024,6 +1024,26 @@
       });
     }
 
+    // Click Application, CPU or Memory to sort (see sortBy). Unraid's "Reset sorting" button next
+    // to the first heading did nothing here and is gone.
+    if (canCompact) {
+      const reset = headRow.querySelector('#resetsort');
+      if (reset) reset.remove();
+      ['name', 'cpu', 'mem'].forEach(function (column) {
+        const heading = headRow.querySelector('th.tp-c-' + column);
+        if (!heading) return;
+        heading.classList.add('tp-sortable');
+        heading.tabIndex = 0;
+        heading.setAttribute('role', 'button');
+        heading.title = column === 'name' ? 'Sort by name' : 'Sort all containers by ' + (column === 'cpu' ? 'CPU' : 'memory') + ' use';
+        heading.append(element('span', 'tp-sort-arrow'));
+        heading.addEventListener('click', function () { sortBy(column); });
+        heading.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortBy(column); }
+        });
+      });
+    }
+
     // Adds the image name, a status cell and an actions cell to one of Unraid's rows. The actions
     // call the same functions as Unraid's own context menu. Rows are rebuilt on every refresh,
     // so this runs again for each new row.
@@ -1294,13 +1314,51 @@
     // in their saved order, then "Ungrouped"; the containers in each section (and the whole list
     // when there are no groups) in Unraid's order. Runs after every refresh, and moves nothing
     // when the order is already right.
+    // Sorting by a click on a column heading: Application (A to Z inside each group), CPU and
+    // Memory (all containers together, the biggest first). A second click reverses the order.
+    // The order is taken once, at the click (the values change every few seconds and the rows
+    // would never stand still), and new containers go last.
+    let sortState = null;
+    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+    function sortRows(items) {
+      if (!sortState) return items;
+      const rank = sortState.rank;
+      const place = function (item) { return rank.has(item.name) ? rank.get(item.name) : Number.MAX_SAFE_INTEGER; };
+      return items.slice().sort(function (a, b) { return place(a) - place(b); });
+    }
+    function sortValue(item, column) {
+      if (column === 'name') return item.name;
+      if (column === 'cpu') {
+        const cell = item.row.querySelector('[class^="cpu-"]');
+        return cell ? number(cell.textContent) : 0;
+      }
+      const cell = item.row.querySelector('[class^="mem-"]');
+      const used = String(cell ? cell.textContent : '').split('/')[0].trim().match(/^([\d.,]+)\s*([KMGT]?i?B)$/i);
+      return used ? number(used[1]) * (UNITS[used[2].toUpperCase()] || 1) : 0;
+    }
+    function sortBy(column) {
+      const direction = sortState && sortState.column === column ? -sortState.direction : (column === 'name' ? 1 : -1);
+      const items = [...list.querySelectorAll('td.ct-name:not(.folder-name)')].map(function (cell) { return describe(cell.parentElement); });
+      items.sort(function (a, b) {
+        const x = sortValue(a, column);
+        const y = sortValue(b, column);
+        return direction * (column === 'name' ? collator.compare(x, y) : x - y) || collator.compare(a.name, b.name);
+      });
+      sortState = { column: column, direction: direction, rank: new Map(items.map(function (item, index) { return [item.name, index]; })) };
+      headRow.querySelectorAll('.tp-sort-arrow').forEach(function (arrow) {
+        const own = arrow.parentElement.classList.contains('tp-c-' + column);
+        arrow.textContent = own ? (direction > 0 ? '\u25B2' : '\u25BC') : '';
+      });
+      render();
+    }
+
     function layoutGroups(rows, orphans) {
       const sections = store.groups.map(function (group) {
-        return { key: 'g:' + group.name, group: group, title: group.name, items: rows.filter(function (item) { return group.containers.includes(item.name); }) };
+        return { key: 'g:' + group.name, group: group, title: group.name, items: sortRows(rows.filter(function (item) { return group.containers.includes(item.name); })) };
       });
       const grouped = sections.length > 0;
       if (grouped) {
-        const rest = rows.filter(function (item) { return !store.of(item.name); });
+        const rest = sortRows(rows.filter(function (item) { return !store.of(item.name); }));
         if (rest.length) sections.push({ key: UNGROUPED, group: null, title: 'Ungrouped', items: rest });
       }
       if (orphans.length) sections.push({ key: ORPHANS, group: null, title: 'Orphans', items: orphans, orphans: true });
@@ -1313,7 +1371,7 @@
       });
 
       // Without groups the containers come first, as a plain list.
-      const order = grouped ? [] : rows.map(function (item) { return item.row; });
+      const order = grouped ? [] : sortRows(rows).map(function (item) { return item.row; });
       sections.forEach(function (section, index) {
         const header = groupRow(section.key, section.group);
         header.tpItems = section.items;
@@ -1353,6 +1411,14 @@
           order.push(item.row);
         });
       });
+      // CPU or Memory order: every container in one list, the group headers out of the way.
+      const flat = Boolean(sortState) && sortState.column !== 'name';
+      table.classList.toggle('tp-sort-flat', flat);
+      if (flat && grouped) {
+        order.length = 0;
+        sortRows(rows).forEach(function (item) { item.collapsed = false; order.push(item.row); });
+        orphans.forEach(function (item) { order.push(item.row); });
+      }
       if (!sections.length) return;
       order.forEach(function (node, index) {
         if (list.children[index] !== node) list.insertBefore(node, list.children[index] || null);

@@ -45,7 +45,7 @@
     let key = node.dataset && node.dataset.tpQa;
     if (!key) {
       const classes = [...node.classList].filter(function (name) {
-        return !/^(nav-item|nav-user|active|hidden|show|hide|open)$/.test(name) && !/^tp-/.test(name);
+        return !/^(nav-item|nav-user|util|active|hidden|show|hide|open)$/.test(name) && !/^tp-/.test(name);
       });
       const anchor = node.querySelector('a[href]');
       const href = (anchor && anchor.getAttribute('href')) || '';
@@ -65,8 +65,17 @@
   }
 
   function quickIcon(node) {
-    const icon = node.querySelector('a b, a i, a svg');
+    const icon = node.querySelector('a b, a i, a svg, a img');
     return icon ? icon.cloneNode(true) : null;
+  }
+
+  // Whether the menu really shows the button (some plugins add empty entries).
+  function quickShown(node) {
+    const wasHidden = node.classList.contains('tp-qa-hidden');
+    if (wasHidden) node.classList.remove('tp-qa-hidden');
+    const shown = node.offsetWidth > 0 && node.offsetHeight > 0;
+    if (wasHidden) node.classList.add('tp-qa-hidden');
+    return shown;
   }
 
   function applyQuickActions() {
@@ -107,9 +116,11 @@
     if (!eyeItem) return;
     eyeItem.classList.toggle('tp-hg-on', state.enabled);
     const icon = eyeItem.querySelector('b');
-    if (icon) icon.innerHTML = state.enabled ? EYE_HIDDEN : EYE_SHOWN;
+    // The picture shows what a click does: the plain eye shows the hidden groups again, the
+    // crossed-out eye hides them.
+    if (icon) icon.innerHTML = state.enabled ? EYE_SHOWN : EYE_HIDDEN;
     const anchor = eyeItem.querySelector('a');
-    anchor.title = state.enabled ? 'Hidden groups (hiding is on)' : 'Hidden groups';
+    anchor.title = state.enabled ? 'Hidden groups are hidden (click to choose or show them)' : 'Hidden groups';
     anchor.setAttribute('aria-label', anchor.title);
   }
 
@@ -322,7 +333,8 @@
           if (!key || seen.has(key) || KEEP.has(key)) return;
           seen.add(key);
           const textNode = node.querySelector('.PanelText');
-          found.push({ key: key, label: ((textNode || anchor).textContent || '').replace(/\s+/g, ' ').trim() || key, section: section });
+          const iconNode = node.querySelector('a > span > *');
+          found.push({ key: key, label: ((textNode || anchor).textContent || '').replace(/\s+/g, ' ').trim() || key, section: section, icon: iconNode ? document.importNode(iconNode, true) : null });
         });
         return found;
       });
@@ -421,6 +433,51 @@
     document.documentElement.classList.remove('tp-qa-pending');
   }
 
+  // ---------------------------------------------------------------- Docker: ports of routed and host containers
+
+  // Unraid's "LAN IP:Port" is empty for a container routed through another one (qbittorrent
+  // through nordlynx) and shows only the address, with "all", for one on the host network
+  // (Jellyfin, Homebridge). include/docker-ports.php reads their ports from their templates.
+  let dockerPorts = null;
+  let dockerPortsAt = 0;
+  let dockerPortsLoading = false;
+
+  function loadDockerPorts() {
+    if (dockerPortsLoading || (dockerPorts && Date.now() - dockerPortsAt < 60000)) return;
+    dockerPortsLoading = true;
+    fetch(BASE + '/include/docker-ports.php', { credentials: 'same-origin' })
+      .then(function (response) { return response.json(); })
+      .then(function (data) { dockerPorts = data; dockerPortsAt = Date.now(); schedule(); })
+      .catch(function () { dockerPorts = dockerPorts || { host: '', containers: {} }; dockerPortsAt = Date.now(); })
+      .then(function () { dockerPortsLoading = false; });
+  }
+
+  function applyDockerPorts() {
+    if (!/^\/Docker\/?$/.test(location.pathname)) return;
+    const rows = document.querySelectorAll('#docker_list > tr');
+    let wanted = false;
+    rows.forEach(function (row) {
+      const portCell = row.querySelector('td.tp-c-ports');
+      const nameNode = row.querySelector('td.ct-name .appname');
+      if (!portCell || !nameNode || row.dataset.tpPorts) return;
+      wanted = true;
+      if (!dockerPorts) return;
+      const entry = dockerPorts.containers && dockerPorts.containers[nameNode.textContent.trim()];
+      row.dataset.tpPorts = '1';
+      if (!entry || !entry.running || !entry.ports.length) return;
+      const address = dockerPorts.host || (portCell.textContent.match(/\d+\.\d+\.\d+\.\d+/) || [''])[0];
+      if (!address) return;
+      const fill = function (cell, lines) {
+        const box = cell && (cell.querySelector('.docker_readmore') || cell);
+        if (box) box.innerHTML = lines.map(function (line) { return line.replace(/[&<>]/g, ''); }).join('<br>');
+        if (cell) cell.classList.remove('tp-c-empty');
+      };
+      fill(portCell, entry.ports.map(function (port) { return address + ':' + port.host; }));
+      fill(row.querySelector('td.tp-c-cport'), entry.ports.map(function (port) { return port.target + ':' + port.proto.toUpperCase(); }));
+    });
+    if (wanted && !dockerPorts) loadDockerPorts();
+  }
+
   // ---------------------------------------------------------------- Run
 
   function run() {
@@ -431,6 +488,7 @@
     applyLogo();
     trimFooter();
     applyApps();
+    applyDockerPorts();
   }
 
   let timer = 0;
@@ -443,7 +501,7 @@
   }
 
   // For the settings page.
-  window.auroraTweaks = { quickItems: quickItems, quickKey: quickKey, quickLabel: quickLabel, quickIcon: quickIcon, fetchPanels: fetchPanels, run: run };
+  window.auroraTweaks = { quickItems: quickItems, quickKey: quickKey, quickLabel: quickLabel, quickIcon: quickIcon, quickShown: quickShown, fetchPanels: fetchPanels, run: run };
 
   try { run(); } catch (error) { console.error('AuroraUnraid:', error); }
   // Unraid's header parts, the Docker list and the Dashboard tiles draw themselves after the page.

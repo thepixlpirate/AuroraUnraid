@@ -1013,7 +1013,7 @@ a.tp-webui .fa {
 }
 
 :where(:root:not(.tp-fvplus)) #docker_list > tr.folder > td {
-    background-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 8%, transparent);
+    background-color: color-mix(in srgb, var(--tp-text) 4%, transparent);
 }
 
 :where(:root:not(.tp-fvplus)) #docker_list > tr.folder > td:first-child {
@@ -1031,7 +1031,7 @@ a.tp-webui .fa {
 }
 
 :where(:root:not(.tp-fvplus)) #docker_list > tr.folder-element > td {
-    background-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 4%, transparent);
+    background-color: color-mix(in srgb, var(--tp-text) 4%, transparent);
 }
 
 :where(:root:not(.tp-fvplus)) #docker_list > tr.folder-element > td:first-child {
@@ -1054,7 +1054,7 @@ a.tp-webui .fa {
 
 :where(:root:not(.tp-fvplus)) table.dashboard span.outer.solid[class*="folder-docker"] {
     border-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 45%, transparent);
-    background-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 10%, var(--tp-subtle, transparent));
+    background-color: var(--tp-subtle, transparent);
 }
 
 :where(:root:not(.tp-fvplus)) table.dashboard .folder-showcase:not(:empty) {
@@ -1065,7 +1065,7 @@ a.tp-webui .fa {
     padding: 0.8rem;
     border: 1px solid color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 30%, transparent);
     border-radius: 12px;
-    background-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 5%, transparent);
+    background-color: color-mix(in srgb, var(--tp-text) 4%, transparent);
 }
 
 /* Dashboard, Docker tile without FolderView: the theme's application groups. A chip like the
@@ -1074,7 +1074,7 @@ a.tp-webui .fa {
 table.dashboard span.outer.solid.tp-group-chip {
     cursor: pointer;
     border-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 45%, transparent);
-    background-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 10%, var(--tp-subtle, transparent));
+    background-color: var(--tp-subtle, transparent);
 }
 
 table.dashboard span.outer.solid.tp-group-chip:focus-visible {
@@ -1091,7 +1091,7 @@ table.dashboard span.outer.solid.tp-group-chip:focus-visible {
     border-radius: 10px;
     color: var(--tp-primary, var(--brand-orange));
     font-size: 1.7rem;
-    background: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 16%, transparent);
+    background: var(--tp-icon-tile, color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 16%, transparent));
 }
 
 table.dashboard span.outer.solid.tp-group-chip .inner {
@@ -1134,7 +1134,7 @@ table.dashboard .tp-group-panel {
     padding: 0.8rem;
     border: 1px solid color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 30%, transparent);
     border-radius: 12px;
-    background-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 5%, transparent);
+    background-color: color-mix(in srgb, var(--tp-text) 4%, transparent);
 }
 
 table.dashboard .tp-group-panel[hidden] {
@@ -4158,7 +4158,7 @@ tbody.tp-cpu-tile > tr.tp-core span.w26 {
     border-radius: 4px;
     color: var(--tp-primary, var(--brand-orange));
     font: 700 0.9rem/1.2 var(--tp-font-heading, inherit);
-    background: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 14%, transparent);
+    background: var(--tp-icon-tile, color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 14%, transparent));
 }
 
 tbody.tp-cpu-tile > tr.tp-core span.w72 {

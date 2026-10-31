@@ -222,3 +222,76 @@ button.tp-ca-toggle svg {
     background: transparent !important;
     box-shadow: none !important;
 }
+
+/* ---- Colours: the cards, the windows inside them and the icon tiles keep fixed colours. The
+   accent colour from the settings only colours icons, text, buttons and toggles. */
+:root {
+    --tp-icon-tile: #262f45;
+}
+
+:root.Theme--white {
+    --tp-icon-tile: #e2e8f6;
+}
+
+/* Dashboard cards: #12151d, like the Plugins page. Unraid's own styles painted them grey. */
+:root:root table.dashboard > tbody {
+    background: var(--tp-elevated) !important;
+}
+
+:root:root table.dashboard > tbody > tr,
+:root:root table.dashboard > tbody > tr > td {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+/* The windows inside the cards: the apps with their status lights, the processor loads, ... */
+:root:root table.dashboard span.outer.solid:not(.tp-group-chip),
+:root:root table.dashboard .tp-group-panel span.outer.solid {
+    background: var(--tp-subtle) !important;
+}
+
+/* Icon tiles at the top of each card. */
+:root:root table.dashboard .tile-header-left > i.f32 {
+    background: var(--tp-icon-tile) !important;
+}
+
+/* ---- The lock button: grey like the other icons; red while the Dashboard can be edited */
+.nav-tile.right .nav-item.LockButton b.green-text {
+    color: inherit !important;
+}
+
+.nav-tile.right .nav-item.LockButton b.red-text {
+    color: var(--tp-danger, #ef4444) !important;
+}
+
+/* ---- Docker tab: clickable headings, no reset button, group icons only while a group is closed */
+#resetsort {
+    display: none !important;
+}
+
+th.tp-sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+th.tp-sortable:hover {
+    color: var(--tp-text);
+}
+
+.tp-sort-arrow {
+    display: inline-block;
+    margin-left: 0.6rem;
+    color: var(--tp-primary);
+    font-size: 0.9em;
+}
+
+/* Sorted by CPU or memory: all containers in one list, so the group headers are hidden. */
+table.tp-sort-flat tr.tp-group {
+    display: none !important;
+}
+
+/* The icons in a group's header only help while the group is closed. */
+tr.tp-group:not(.tp-collapsed) .tp-group-apps,
+table.dashboard span.outer.solid.tp-group-chip:not(.tp-collapsed) .tp-group-apps {
+    display: none !important;
+}

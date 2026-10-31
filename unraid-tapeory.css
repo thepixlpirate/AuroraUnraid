@@ -1412,7 +1412,7 @@
         border-radius: var(--tp-r-md);
         color: var(--tp-primary);
         font-size: 2.2rem !important;
-        background-color: var(--tp-primary-soft);
+        background-color: var(--tp-icon-tile, var(--tp-primary-soft));
     }
 
     table.dashboard .tile-header-main {
@@ -2100,7 +2100,7 @@
 
     /* Pool name rows stand out a little; totals rows close each group. */
     table.disk_status tr.pool_header > td {
-        background-color: color-mix(in srgb, var(--tp-primary) 5%, transparent);
+        background-color: color-mix(in srgb, var(--tp-text) 4%, transparent);
     }
 
     /* Divider between two pools: Unraid puts it in a header row, which must not take the
@@ -3434,7 +3434,7 @@
             padding-top: 1.2rem;
             color: var(--tp-primary);
             font: 600 1.3rem var(--tp-font-heading);
-            background-color: color-mix(in srgb, var(--tp-primary) 6%, transparent);
+            background-color: color-mix(in srgb, var(--tp-text) 4%, transparent);
         }
     }
 
@@ -4463,7 +4463,7 @@
         color: color-mix(in srgb, var(--tp-text) 82%, var(--tp-muted));
         font-size: 1.3rem;
         line-height: 1.65;
-        background: color-mix(in srgb, var(--tp-primary) 6%, var(--tp-elevated));
+        background: var(--tp-elevated);
     }
 
     blockquote:where(:not(.unapi *))::before {
@@ -4629,7 +4629,7 @@
         border: 1px solid color-mix(in srgb, var(--tp-primary) 28%, transparent);
         border-radius: 12px;
         color: var(--tp-text);
-        background: color-mix(in srgb, var(--tp-primary) 7%, var(--tp-elevated));
+        background: var(--tp-elevated);
     }
 
     .tp-tool-text p.tp-callout::before {
