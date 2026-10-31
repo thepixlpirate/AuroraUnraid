@@ -3,7 +3,7 @@
 
 <PLUGIN name="AuroraUnraid"
         author="Tunefish, modified by thepixlpirate"
-        version="2026.10.31.2008"
+        version="2026.10.31.2041"
         launch="Settings/AuroraUnraidSettings"
         pluginURL="https://raw.githubusercontent.com/thepixlpirate/AuroraUnraid/release/AuroraUnraid.plg"
         support="https://github.com/thepixlpirate/AuroraUnraid/issues"
@@ -11,7 +11,8 @@
         min="7.2.0">
 
 <CHANGES>
-###2026.10.31.2008
+###2026.10.31.2041
+- Quick Actions list: the empty Disk Viewer and Stream Viewer entries are left out.
 - Docker tab: an LED beside each name (green running, red stopped, orange paused, a yellow turning ring while a container starts, stops or restarts).
 - Fixed: the switches on the settings page; the accent no longer colours the outline of the group panels on the Dashboard; the Disk Viewer card follows the theme colours.
 - Settings page redesigned: tabs with icons, a card per tab, switches, tile cards with Unraid's own icons for the Settings and Tools pages (filter, all on / all off, one switch per category).
@@ -92,10 +93,10 @@ for OLD in Tunefish-Future-Theme Aurora-Theme; do
   fi
 done
 old=$(sed -n 's/^[[:space:]]*version="\([^"]*\)".*/\1/p' /boot/config/plugins/AuroraUnraid.plg 2>/dev/null | head -n 1)
-if [[ "$old" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[A-Za-z0-9._-]*$ && "$old" != "2026.10.31.2008" ]]; then
+if [[ "$old" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[A-Za-z0-9._-]*$ && "$old" != "2026.10.31.2041" ]]; then
   from=$(sed -n 's/.*"from":"\([^"]*\)".*/\1/p' /boot/config/plugins/AuroraUnraid/updated.json 2>/dev/null)
   [[ "$from" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[A-Za-z0-9._-]*$ ]] || from=$old
-  printf '{"from":"%s","to":"%s","time":%s}\n' "$from" "2026.10.31.2008" "$(date +%s)" > /boot/config/plugins/AuroraUnraid/updated.json
+  printf '{"from":"%s","to":"%s","time":%s}\n' "$from" "2026.10.31.2041" "$(date +%s)" > /boot/config/plugins/AuroraUnraid/updated.json
 fi
 cat > /usr/local/emhttp/plugins/AuroraUnraid/AuroraUnraid.page <<'AURORA_UNRAID_EOF'
 Menu="Buttons"
@@ -407,7 +408,7 @@ if (in_array(rtrim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PAT
 <?php if ($auroraClasses): ?>
 <script>document.documentElement.classList.add(...<?= json_encode($auroraClasses) ?>);</script>
 <?php endif; ?>
-<?php if (substr('2026.10.31.2008', -4) === '-dev'): ?>
+<?php if (substr('2026.10.31.2041', -4) === '-dev'): ?>
 <?php // A dev build (version "...-dev", set by plugin/build.py) is installed: a "Dev" badge in the
       // top bar, linking to the settings, where the update channel goes back to stable. ?>
 <style id="aurora-dev-badge">
@@ -429,7 +430,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var badge = document.createElement('a');
   badge.className = 'tp-dev-badge';
   badge.href = '/Settings/AuroraUnraidSettings';
-  badge.title = 'AuroraUnraid dev build 2026.10.31.2008: a test version, installed because the update channel is set to dev builds. Click to change it.';
+  badge.title = 'AuroraUnraid dev build 2026.10.31.2041: a test version, installed because the update channel is set to dev builds. Click to change it.';
   badge.innerHTML = '<i aria-hidden="true"></i><span>Aurora</span><b>Dev</b>';
   // Where it goes: with the sidebar shown, on its own line under Unraid's version (the version
   // row has room for the version and its update notice only); otherwise in
@@ -10882,6 +10883,9 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/ui-tweaks.js <<'AURORA_UNRA
 
   // Whether the menu really shows the button (some plugins add empty entries).
   function quickShown(node) {
+    // Disk Viewer and Stream Viewer add a dummy button here and show their own badge in the
+    // header instead (they hide the dummy a moment after the page loads).
+    if (node.matches('.DiskViewerButton, .StreamViewerButton')) return false;
     const wasHidden = node.classList.contains('tp-qa-hidden');
     if (wasHidden) node.classList.remove('tp-qa-hidden');
     const shown = node.offsetWidth > 0 && node.offsetHeight > 0;
@@ -24835,7 +24839,7 @@ cat > /boot/config/plugins/AuroraUnraid/stats.cron <<'AURORA_UNRAID_EOF'
 AURORA_UNRAID_EOF
 /usr/bin/php /usr/local/emhttp/plugins/AuroraUnraid/scripts/schedule.php
 echo ""
-echo "AuroraUnraid 2026.10.31.2008 is installed."
+echo "AuroraUnraid 2026.10.31.2041 is installed."
 echo "Settings: Settings > User Utilities > AuroraUnraid"
 echo ""
 ]]>
