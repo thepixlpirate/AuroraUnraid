@@ -3,7 +3,7 @@
 
 <PLUGIN name="AuroraUnraid"
         author="Tunefish, modified by thepixlpirate"
-        version="2026.10.30.0956"
+        version="2026.10.31.0313"
         launch="Settings/AuroraUnraidSettings"
         pluginURL="https://raw.githubusercontent.com/thepixlpirate/AuroraUnraid/release/AuroraUnraid.plg"
         support="https://github.com/thepixlpirate/AuroraUnraid/issues"
@@ -11,7 +11,12 @@
         min="7.2.0">
 
 <CHANGES>
-###2026.10.30.0956
+###2026.10.31.0313
+- Settings page redesigned: tabs with icons, a card per tab, switches, tile cards with Unraid's own icons for the Settings and Tools pages (filter, all on / all off, one switch per category).
+- Fixed: Quick Actions and the Settings / Tools tile switches were not saved (Apply stayed off); buttons nobody sees (Disk Viewer, Active Streams) are no longer listed.
+- Dashboard: cards #12151d, the windows inside them #161a23, icon tiles #262f45, the same on every page; the accent colour no longer tints backgrounds.
+- The Hidden groups eye button shows the opposite picture (crossed-out eye = a click hides the groups); the lock button is grey like the others and red while the Dashboard can be edited.
+- Docker tab: click Application (A to Z inside each group), CPU or Memory (all containers, biggest first) to sort, with an arrow; the reset button is gone; group icons only show while the group is closed; containers on the host network or routed through another container show their ports under LAN IP:Port.
 - Renamed to AuroraUnraid (settings: Settings > User Utilities > AuroraUnraid). An installed Aurora-Theme is replaced and its settings, groups and statistics move over.
 - Settings page in tabs: Appearance, Header and sidebar, Quick Actions, Settings and Tools, Updates, Advanced.
 - Quick Actions: hide and drag-to-reorder buttons from the settings; the buttons now appear all at once; a "Hidden groups" eye button hides chosen Docker groups on the Docker tab and the Dashboard.
@@ -85,10 +90,10 @@ for OLD in Tunefish-Future-Theme Aurora-Theme; do
   fi
 done
 old=$(sed -n 's/^[[:space:]]*version="\([^"]*\)".*/\1/p' /boot/config/plugins/AuroraUnraid.plg 2>/dev/null | head -n 1)
-if [[ "$old" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[A-Za-z0-9._-]*$ && "$old" != "2026.10.30.0956" ]]; then
+if [[ "$old" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[A-Za-z0-9._-]*$ && "$old" != "2026.10.31.0313" ]]; then
   from=$(sed -n 's/.*"from":"\([^"]*\)".*/\1/p' /boot/config/plugins/AuroraUnraid/updated.json 2>/dev/null)
   [[ "$from" =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}[A-Za-z0-9._-]*$ ]] || from=$old
-  printf '{"from":"%s","to":"%s","time":%s}\n' "$from" "2026.10.30.0956" "$(date +%s)" > /boot/config/plugins/AuroraUnraid/updated.json
+  printf '{"from":"%s","to":"%s","time":%s}\n' "$from" "2026.10.31.0313" "$(date +%s)" > /boot/config/plugins/AuroraUnraid/updated.json
 fi
 cat > /usr/local/emhttp/plugins/AuroraUnraid/AuroraUnraid.page <<'AURORA_UNRAID_EOF'
 Menu="Buttons"
@@ -400,7 +405,7 @@ if (in_array(rtrim((string) parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PAT
 <?php if ($auroraClasses): ?>
 <script>document.documentElement.classList.add(...<?= json_encode($auroraClasses) ?>);</script>
 <?php endif; ?>
-<?php if (substr('2026.10.30.0956', -4) === '-dev'): ?>
+<?php if (substr('2026.10.31.0313', -4) === '-dev'): ?>
 <?php // A dev build (version "...-dev", set by plugin/build.py) is installed: a "Dev" badge in the
       // top bar, linking to the settings, where the update channel goes back to stable. ?>
 <style id="aurora-dev-badge">
@@ -422,7 +427,7 @@ document.addEventListener('DOMContentLoaded', function () {
   var badge = document.createElement('a');
   badge.className = 'tp-dev-badge';
   badge.href = '/Settings/AuroraUnraidSettings';
-  badge.title = 'AuroraUnraid dev build 2026.10.30.0956: a test version, installed because the update channel is set to dev builds. Click to change it.';
+  badge.title = 'AuroraUnraid dev build 2026.10.31.0313: a test version, installed because the update channel is set to dev builds. Click to change it.';
   badge.innerHTML = '<i aria-hidden="true"></i><span>Aurora</span><b>Dev</b>';
   // Where it goes: with the sidebar shown, on its own line under Unraid's version (the version
   // row has room for the version and its update notice only); otherwise in
@@ -613,14 +618,12 @@ _(Quick Actions buttons)_:
 
 <div class="tft-tab-marker" data-tab="pages"></div>
 
-_(Settings page tiles)_:
-: <input type="hidden" name="hide_settings" id="tft-hide-settings" value="<?= htmlspecialchars($aurora['hide_settings'] ?? '') ?>"><div id="tft-panels-settings" class="tft-panels">Loading…</div>
+_(Settings and Tools pages)_:
+: <input type="hidden" name="hide_settings" id="tft-hide-settings" value="<?= htmlspecialchars($aurora['hide_settings'] ?? '') ?>"><input type="hidden" name="hide_tools" id="tft-hide-tools" value="<?= htmlspecialchars($aurora['hide_tools'] ?? '') ?>"><div id="tft-tiles" class="tft-tiles">Loading…</div>
 
-_(Tools page tiles)_:
-: <input type="hidden" name="hide_tools" id="tft-hide-tools" value="<?= htmlspecialchars($aurora['hide_tools'] ?? '') ?>"><div id="tft-panels-tools" class="tft-panels">Loading…</div>
-
-> Tick what the Settings and Tools pages show; untick to hide a tile. This only hides the tile:
-> the page behind it is still reachable by its address. This settings page itself cannot be hidden.
+> Switch off the tiles you do not want on the Settings and Tools pages; a category with all its tiles
+> off disappears with its title. This only hides the tile: the page behind it can still be opened by
+> its address. This settings page itself cannot be hidden.
 
 <div class="tft-tab-marker" data-tab="updates"></div>
 
@@ -677,6 +680,9 @@ auroraLogo();
 // A change of a script-filled hidden field is announced so that Unraid enables "Apply".
 function auroraAnnounce(field) {
   ['input', 'change'].forEach(function (type) { field.dispatchEvent(new Event(type, { bubbles: true })); });
+  // Unraid only wires up the fields that exist when the page loads, so the checkboxes made by
+  // this script do not enable "Apply" by themselves.
+  document.querySelectorAll('input[value="Apply"], input[name="#apply"]').forEach(function (button) { button.disabled = false; });
 }
 function auroraSplit(value) {
   return String(value || '').split(',').map(function (part) { return part.trim(); }).filter(Boolean);
@@ -706,18 +712,21 @@ function auroraQaBuild() {
   tweaks.quickItems().forEach(function (node) {
     var key = tweaks.quickKey(node);
     domKeys.push(key);
-    var icon = tweaks.quickIcon(node);
-    // Entries without an icon (Disk Viewer, Active Streams) are not buttons you can see.
-    if (icon) found.push({ key: key, label: tweaks.quickLabel(node), icon: icon });
+    // Entries nobody sees in the menu (Disk Viewer, Active Streams) are left out.
+    if (!tweaks.quickShown(node)) return;
+    found.push({ key: key, label: tweaks.quickLabel(node), icon: tweaks.quickIcon(node) });
   });
+  // The lock button is only in the menu of the Dashboard.
+  if (domKeys.indexOf('LockButton') === -1) found.push({ key: 'LockButton', label: 'Lock / unlock sortable items', icon: null, note: ' (Dashboard only)' });
   // Saved buttons that are not on this page right now stay in the list, so nothing is lost.
   saved.concat(hidden).forEach(function (key) {
-    if (domKeys.indexOf(key) === -1 && !found.some(function (item) { return item.key === key; })) found.push({ key: key, label: key.replace(/^(href|text):/, ''), icon: null, absent: true });
+    if (domKeys.indexOf(key) === -1 && !found.some(function (item) { return item.key === key; })) found.push({ key: key, label: key.replace(/^(href|text):/, ''), icon: null, note: ' (not on this page)' });
   });
   found.sort(function (a, b) {
     var ia = saved.indexOf(a.key), ib = saved.indexOf(b.key);
     return (ia === -1 ? 999 : ia) - (ib === -1 ? 999 : ib);
   });
+  auroraQa.list = list;
   list.className = 'tft-sortlist';
   list.replaceChildren();
   var dragging = null;
@@ -738,7 +747,7 @@ function auroraQaBuild() {
     if (item.icon) icon.append(item.icon);
     var label = document.createElement('span');
     label.className = 'tft-sort-label';
-    label.textContent = item.label + (item.absent ? ' (not on this page)' : '');
+    label.textContent = item.label + (item.note || '');
     var up = document.createElement('button'), down = document.createElement('button');
     up.type = down.type = 'button';
     up.className = down.className = 'tft-move';
@@ -765,13 +774,20 @@ function auroraQaBuild() {
   list.ondragover = function (event) {
     if (!dragging) return;
     event.preventDefault();
-    var after = null, best = Number.NEGATIVE_INFINITY;
+    // The list is a grid: the row nearest to the pointer decides, and the dragged row goes before
+    // or after it depending on which side of that row's middle the pointer is.
+    var nearest = null, best = Number.POSITIVE_INFINITY;
     list.querySelectorAll('.tft-sort-row:not(.tft-dragging)').forEach(function (row) {
       var box = row.getBoundingClientRect();
-      var offset = event.clientY - box.top - box.height / 2;
-      if (offset < 0 && offset > best) { best = offset; after = row; }
+      var dx = event.clientX - (box.left + box.width / 2), dy = event.clientY - (box.top + box.height / 2);
+      var distance = dx * dx + dy * dy;
+      if (distance < best) { best = distance; nearest = row; }
     });
-    if (after) list.insertBefore(dragging, after); else list.append(dragging);
+    if (!nearest) return;
+    var box = nearest.getBoundingClientRect();
+    var sameRow = event.clientY >= box.top && event.clientY <= box.bottom;
+    var before = sameRow ? event.clientX < box.left + box.width / 2 : event.clientY < box.top;
+    if (before) list.insertBefore(dragging, nearest); else list.insertBefore(dragging, nearest.nextSibling);
   };
 }
 function auroraQaReset() {
@@ -782,72 +798,143 @@ function auroraQaReset() {
   auroraQaBuild();
 }
 
-// ---- Settings and Tools tiles: a checkbox per tile of that page, read from the page itself,
-// and one per category that switches all of its tiles (and the category's title) at once.
-function auroraPanels(kind, fieldId, boxId) {
-  var field = document.getElementById(fieldId);
-  var box = document.getElementById(boxId);
-  var hidden = auroraSplit(field.value);
-  var sync = function () {
-    var now = [];
-    box.querySelectorAll('input[data-key]').forEach(function (check) { if (!check.checked) now.push(check.dataset.key); });
-    // Tiles that are not on the page any more keep their saved choice.
-    hidden.forEach(function (key) { if (!box.querySelector('input[data-key="' + key + '"]') && now.indexOf(key) === -1) now.push(key); });
-    field.value = now.join(',');
-    auroraAnnounce(field);
-  };
+// ---- Settings and Tools tiles: a card per tile of those two pages (read from the pages themselves,
+// with Unraid's own icons) and a switch on it, one switch per category, a filter and "all on / all off".
+function auroraTiles() {
+  var box = document.getElementById('tft-tiles');
+  var fields = { Settings: document.getElementById('tft-hide-settings'), Tools: document.getElementById('tft-hide-tools') };
   var tweaks = window.auroraTweaks;
   if (!tweaks) { box.textContent = 'The tile list is not available (is the theme switched off for this browser?).'; return; }
-  tweaks.fetchPanels(kind).then(function (panels) {
+  var hidden = { Settings: auroraSplit(fields.Settings.value), Tools: auroraSplit(fields.Tools.value) };
+  var sync = function () {
+    ['Settings', 'Tools'].forEach(function (kind) {
+      var now = [];
+      box.querySelectorAll('input[data-kind="' + kind + '"]').forEach(function (check) { if (!check.checked) now.push(check.dataset.key); });
+      // Tiles that are not on the page any more keep their saved choice.
+      hidden[kind].forEach(function (key) { if (!box.querySelector('input[data-key="' + key + '"]') && now.indexOf(key) === -1) now.push(key); });
+      fields[kind].value = now.join(',');
+      auroraAnnounce(fields[kind]);
+    });
+  };
+  Promise.all([tweaks.fetchPanels('Settings'), tweaks.fetchPanels('Tools')]).then(function (lists) {
     box.replaceChildren();
-    if (!panels.length) { box.textContent = 'No tiles found on the ' + kind + ' page.'; return; }
-    var section = null, grid = null, current = null;
-    var refresh = function (entry) {
-      if (!entry.head) return;
-      var on = entry.checks.filter(function (check) { return check.checked; }).length;
-      entry.head.checked = on === entry.checks.length;
-      entry.head.indeterminate = on > 0 && on < entry.checks.length;
+    var kinds = ['Settings', 'Tools'];
+    var filter = { kind: 'all', text: '' };
+    var groups = [];
+
+    // Toolbar
+    var bar = document.createElement('div');
+    bar.className = 'tft-tilebar';
+    var segment = document.createElement('div');
+    segment.className = 'tft-segment';
+    var segButtons = {};
+    [['all', 'All tiles'], ['Settings', 'Settings tiles'], ['Tools', 'Tools tiles']].forEach(function (item) {
+      var button = document.createElement('button');
+      button.type = 'button';
+      button.textContent = item[1];
+      button.addEventListener('click', function () { filter.kind = item[0]; apply(); });
+      segButtons[item[0]] = button;
+      segment.append(button);
+    });
+    var search = document.createElement('input');
+    search.type = 'search';
+    search.placeholder = 'Filter tiles...';
+    search.className = 'tft-tilesearch';
+    search.addEventListener('input', function () { filter.text = search.value.trim().toLowerCase(); apply(); });
+    var setAll = function (on) {
+      groups.forEach(function (group) {
+        if (group.element.hidden) return;
+        group.tiles.forEach(function (tile) { if (!tile.element.hidden) tile.check.checked = on; });
+        refresh(group);
+      });
+      sync();
     };
-    var all = [];
-    panels.forEach(function (panel) {
-      if (current === null || panel.section !== section) {
-        section = panel.section;
-        current = { head: null, checks: [] };
-        all.push(current);
-        if (section) {
+    var allOn = document.createElement('button');
+    var allOff = document.createElement('button');
+    allOn.type = allOff.type = 'button';
+    allOn.className = allOff.className = 'tft-mini';
+    allOn.textContent = 'All on';
+    allOff.textContent = 'All off';
+    allOn.title = 'Show every tile that is listed';
+    allOff.title = 'Hide every tile that is listed';
+    allOn.addEventListener('click', function () { setAll(true); });
+    allOff.addEventListener('click', function () { setAll(false); });
+    bar.append(segment, search, allOn, allOff);
+    box.append(bar);
+
+    var refresh = function (group) {
+      var on = group.tiles.filter(function (tile) { return tile.check.checked; }).length;
+      group.head.checked = on === group.tiles.length;
+      group.head.indeterminate = on > 0 && on < group.tiles.length;
+    };
+    var apply = function () {
+      Object.keys(segButtons).forEach(function (key) { segButtons[key].classList.toggle('tft-on', key === filter.kind); });
+      groups.forEach(function (group) {
+        var shown = 0;
+        group.tiles.forEach(function (tile) {
+          var visible = (filter.kind === 'all' || filter.kind === group.kind) && (!filter.text || tile.label.toLowerCase().indexOf(filter.text) !== -1);
+          tile.element.hidden = !visible;
+          if (visible) shown++;
+        });
+        group.element.hidden = shown === 0;
+      });
+    };
+
+    kinds.forEach(function (kind, index) {
+      var section = null, group = null, grid = null;
+      lists[index].forEach(function (panel) {
+        if (!group || panel.section !== section) {
+          section = panel.section;
+          var wrap = document.createElement('div');
+          wrap.className = 'tft-tilegroup';
           var title = document.createElement('label');
-          title.className = 'tft-panels-heading';
+          title.className = 'tft-tilegroup-head';
           var head = document.createElement('input');
           head.type = 'checkbox';
-          head.title = 'Show or hide the whole category';
-          current.head = head;
+          head.title = 'Switch the whole category on or off';
+          var name = document.createElement('span');
+          name.className = 'tft-tilegroup-name';
+          name.textContent = section || kind;
+          var tag = document.createElement('span');
+          tag.className = 'tft-tilegroup-kind';
+          tag.textContent = kind + ' page';
+          title.append(head, name, tag);
+          grid = document.createElement('div');
+          grid.className = 'tft-tilegrid';
+          wrap.append(title, grid);
+          box.append(wrap);
+          group = { kind: kind, element: wrap, head: head, tiles: [] };
+          groups.push(group);
           head.addEventListener('change', (function (entry) {
             return function () {
-              entry.checks.forEach(function (check) { check.checked = entry.head.checked; });
+              entry.tiles.forEach(function (tile) { tile.check.checked = entry.head.checked; });
               entry.head.indeterminate = false;
               sync();
             };
-          })(current));
-          title.append(head, document.createTextNode(' ' + section));
-          box.append(title);
+          })(group));
         }
-        grid = document.createElement('div');
-        grid.className = 'tft-toggles';
-        box.append(grid);
-      }
-      var label = document.createElement('label');
-      label.className = 'tft-check tft-check-inline';
-      var check = document.createElement('input');
-      check.type = 'checkbox';
-      check.dataset.key = panel.key;
-      check.checked = hidden.indexOf(panel.key) === -1;
-      check.addEventListener('change', (function (entry) { return function () { refresh(entry); sync(); }; })(current));
-      current.checks.push(check);
-      label.append(check, document.createTextNode(' ' + panel.label));
-      grid.append(label);
+        var tile = document.createElement('label');
+        tile.className = 'tft-tile';
+        var icon = document.createElement('span');
+        icon.className = 'tft-tile-icon';
+        if (panel.icon) icon.append(panel.icon);
+        var label = document.createElement('span');
+        label.className = 'tft-tile-name';
+        label.textContent = panel.label;
+        var check = document.createElement('input');
+        check.type = 'checkbox';
+        check.dataset.key = panel.key;
+        check.dataset.kind = kind;
+        check.checked = hidden[kind].indexOf(panel.key) === -1;
+        check.addEventListener('change', (function (entry) { return function () { refresh(entry); sync(); }; })(group));
+        tile.append(icon, label, check);
+        grid.append(tile);
+        group.tiles.push({ element: tile, check: check, label: panel.label });
+      });
     });
-    all.forEach(refresh);
-  }).catch(function () { box.textContent = 'The ' + kind + ' page could not be read.'; });
+    groups.forEach(refresh);
+    apply();
+  }).catch(function () { box.textContent = 'The Settings and Tools pages could not be read.'; });
 }
 
 // The Quick Actions are drawn by the theme's script after the page is parsed; wait for it.
@@ -856,8 +943,7 @@ document.addEventListener('DOMContentLoaded', function () {
   (function wait() {
     if (window.auroraTweaks || tries++ > 40) {
       auroraQaBuild();
-      auroraPanels('Settings', 'tft-hide-settings', 'tft-panels-settings');
-      auroraPanels('Tools', 'tft-hide-tools', 'tft-panels-tools');
+      auroraTiles();
     } else setTimeout(wait, 100);
   })();
 });
@@ -1008,33 +1094,71 @@ for example `/Dashboard?aurora=off`. The plugin then loads nothing in that brows
 a page with `?aurora=on`. <?= !empty($_COOKIE['aurora_off']) ? '**The switch is currently off in this browser.**' : '' ?>
 
 <script>
-// ---- Tabs: the settings are grouped by the markers in the form; only one group shows at a time.
+// ---- Tabs and cards: the settings are grouped by the markers in the form into one card per tab,
+// and a bar of tabs shows one card at a time.
 document.addEventListener('DOMContentLoaded', function () {
-  var form = document.querySelector('input[name="#file"][value="AuroraUnraid/AuroraUnraid.cfg"]');
-  form = form && form.form;
-  var first = document.querySelector('.tft-tab-marker');
-  if (!form || !first) return;
-  var lists = [Array.prototype.slice.call(form.children), []];
-  for (var node = form.nextElementSibling; node; node = node.nextElementSibling) lists[1].push(node);
-  var current = null, firstNode = null;
-  lists.forEach(function (list) {
+  var field = document.querySelector('input[name="#file"][value="AuroraUnraid/AuroraUnraid.cfg"]');
+  var form = field && field.form;
+  if (!form || !document.querySelector('.tft-tab-marker')) return;
+  var svg = function (body) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + body + '</svg>'; };
+  var tabs = [
+    ['appearance', 'Appearance', 'Colours, fonts and layout', svg('<path d="M12 3a9 9 0 1 0 0 18c1.1 0 2-.9 2-2 0-.5-.2-1-.5-1.3-.3-.4-.5-.8-.5-1.2 0-1.1.9-2 2-2h2a4 4 0 0 0 4-4c0-4.4-4-8-9-8z"/><circle cx="7.5" cy="11" r=".8"/><circle cx="11" cy="7" r=".8"/><circle cx="16" cy="8" r=".8"/>')],
+    ['layout', 'Header & sidebar', 'Top bar, sidebar, logo and footer', svg('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>')],
+    ['quick', 'Quick Actions', 'Show, hide and re-order the buttons', svg('<path d="M13 2 3 14h9l-1 8 10-12h-9z"/>')],
+    ['pages', 'Settings & Tools', 'Hide tiles on those two pages', svg('<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>')],
+    ['updates', 'Updates', 'Versions and automatic updates', svg('<path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5M3 21v-5h5"/>')],
+    ['advanced', 'Advanced', 'Emergency switch', svg('<path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6z"/><path d="M12 8v5M12 16h.01"/>')]
+  ];
+  var meta = {};
+  tabs.forEach(function (tab) { meta[tab[0]] = tab; });
+
+  // One card per tab; the nodes between two markers move into it (their fields stay in the form).
+  var panes = [];
+  var group = function (list) {
+    var pane = null;
     list.forEach(function (node) {
       var marker = node.matches('.tft-tab-marker') ? node : node.querySelector('.tft-tab-marker');
       if (marker) {
-        if (!firstNode && node.parentNode === form) firstNode = node;
-        current = marker.dataset.tab === 'all' ? null : marker.dataset.tab;
+        pane = null;
+        var id = marker.dataset.tab;
+        if (id !== 'all' && meta[id]) {
+          pane = document.createElement('section');
+          pane.className = 'tft-pane';
+          pane.dataset.tftTab = id;
+          var head = document.createElement('header');
+          head.className = 'tft-pane-head';
+          var icon = document.createElement('span');
+          icon.className = 'tft-pane-icon';
+          icon.innerHTML = meta[id][3];
+          var title = document.createElement('h2');
+          title.textContent = meta[id][1];
+          var sub = document.createElement('span');
+          sub.className = 'tft-pane-sub';
+          sub.textContent = meta[id][2];
+          head.append(icon, title, sub);
+          pane.append(head);
+          node.parentNode.insertBefore(pane, node);
+          panes.push(pane);
+        }
         return;
       }
-      if (current) node.dataset.tftTab = current;
+      if (pane) pane.append(node);
     });
-  });
-  var tabs = [['appearance', 'Appearance'], ['layout', 'Header & sidebar'], ['quick', 'Quick Actions'], ['pages', 'Settings & Tools'], ['updates', 'Updates'], ['advanced', 'Advanced']];
-  var bar = document.createElement('div');
+  };
+  var inside = Array.prototype.slice.call(form.children);
+  var outside = [];
+  for (var next = form.nextElementSibling; next; next = next.nextElementSibling) outside.push(next);
+  var firstPane = null;
+  group(inside);
+  firstPane = panes[0];
+  group(outside);
+
+  var bar = document.createElement('nav');
   bar.className = 'tft-tabs';
   bar.setAttribute('role', 'tablist');
   var buttons = {};
   var show = function (id) {
-    document.querySelectorAll('[data-tft-tab]').forEach(function (node) { node.classList.toggle('tft-tab-hidden', node.dataset.tftTab !== id); });
+    panes.forEach(function (pane) { pane.hidden = pane.dataset.tftTab !== id; });
     Object.keys(buttons).forEach(function (key) {
       buttons[key].classList.toggle('tft-tab-on', key === id);
       buttons[key].setAttribute('aria-selected', key === id ? 'true' : 'false');
@@ -1046,12 +1170,13 @@ document.addEventListener('DOMContentLoaded', function () {
     button.type = 'button';
     button.className = 'tft-tab';
     button.setAttribute('role', 'tab');
-    button.textContent = tab[1];
+    button.innerHTML = '<span class="tft-tab-icon">' + tab[3] + '</span><span></span>';
+    button.lastChild.textContent = tab[1];
     button.addEventListener('click', function () { show(tab[0]); });
     buttons[tab[0]] = button;
     bar.append(button);
   });
-  form.insertBefore(bar, firstNode || form.firstChild);
+  form.insertBefore(bar, firstPane || form.firstChild);
   var saved = null;
   try { saved = localStorage.getItem('auroraunraid.settingsTab'); } catch (error) { /* private mode */ }
   show(saved && buttons[saved] ? saved : 'appearance');
@@ -5545,6 +5670,57 @@ if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'POST') {
 $stored = json_decode((string) @file_get_contents(TFT_GROUPS_FILE), true);
 echo json_encode(['groups' => tft_clean_groups($stored['groups'] ?? [])]);
 AURORA_UNRAID_EOF
+cat > /usr/local/emhttp/plugins/AuroraUnraid/include/docker-ports.php <<'AURORA_UNRAID_EOF'
+<?php
+// Ports of the containers that Unraid's Docker tab leaves without a "LAN IP:Port":
+//   - host network (Jellyfin, Homebridge, ...): Unraid shows the server's address and "all"
+//   - routed through another container (network "container:nordlynx"): Unraid shows nothing,
+//     because the ports are published on the other container
+// For both, the ports come from the container's template (its "Port" settings).
+//   GET returns {"host": "192.168.1.5", "containers": {"qbittorrent": {"mode": "routed",
+//        "running": true, "ports": [{"host": "8080", "target": "8080", "proto": "tcp"}]}}}
+// Other containers are left out: Unraid's list is complete for them.
+
+$docroot = $_SERVER['DOCUMENT_ROOT'] ?: '/usr/local/emhttp';
+require_once "$docroot/plugins/dynamix.docker.manager/include/DockerClient.php";
+
+header('Content-Type: application/json');
+header('Cache-Control: no-store');
+
+$result = ['host' => DockerUtil::host(), 'containers' => new stdClass()];
+$containers = [];
+try {
+    $client = new DockerClient();
+    $templates = new DockerTemplates();
+    foreach ($client->getDockerContainers() as $ct) {
+        $name = (string) ($ct['Name'] ?? '');
+        $mode = (string) ($ct['NetworkMode'] ?? '');
+        $kind = $mode === 'host' ? 'host' : (strpos($mode, 'container:') === 0 ? 'routed' : '');
+        if ($name === '' || $kind === '') continue;
+        $ports = [];
+        $path = $templates->getUserTemplate($name);
+        $xml = ($path && is_file($path)) ? @simplexml_load_file($path) : false;
+        if ($xml) {
+            foreach ($xml->Config as $config) {
+                if ((string) $config['Type'] !== 'Port') continue;
+                $target = trim((string) $config['Target']);
+                $value = trim((string) $config) !== '' ? trim((string) $config) : trim((string) $config['Default']);
+                // On the host network the container listens on its own ports; routed, the
+                // ports are the ones published on the other container.
+                $port = $kind === 'host' ? ($target !== '' ? $target : $value) : ($value !== '' ? $value : $target);
+                if (!preg_match('/^\d+(-\d+)?$/', $port)) continue;
+                $proto = strtolower(trim((string) $config['Mode'])) === 'udp' ? 'udp' : 'tcp';
+                $ports[] = ['host' => $port, 'target' => $target !== '' ? $target : $port, 'proto' => $proto];
+            }
+        }
+        $containers[$name] = ['mode' => $kind, 'running' => !empty($ct['Running']), 'ports' => $ports];
+    }
+} catch (Throwable $error) {
+    // The Docker service is not running: nothing to add.
+}
+if ($containers) $result['containers'] = $containers;
+echo json_encode($result);
+AURORA_UNRAID_EOF
 cat > /usr/local/emhttp/plugins/AuroraUnraid/include/docker-updates.php <<'AURORA_UNRAID_EOF'
 <?php
 // When Unraid's record of container image updates last changed, for the Docker tab and the
@@ -7205,6 +7381,26 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/enhance.js <<'AURORA_UNRAID
       });
     }
 
+    // Click Application, CPU or Memory to sort (see sortBy). Unraid's "Reset sorting" button next
+    // to the first heading did nothing here and is gone.
+    if (canCompact) {
+      const reset = headRow.querySelector('#resetsort');
+      if (reset) reset.remove();
+      ['name', 'cpu', 'mem'].forEach(function (column) {
+        const heading = headRow.querySelector('th.tp-c-' + column);
+        if (!heading) return;
+        heading.classList.add('tp-sortable');
+        heading.tabIndex = 0;
+        heading.setAttribute('role', 'button');
+        heading.title = column === 'name' ? 'Sort by name' : 'Sort all containers by ' + (column === 'cpu' ? 'CPU' : 'memory') + ' use';
+        heading.append(element('span', 'tp-sort-arrow'));
+        heading.addEventListener('click', function () { sortBy(column); });
+        heading.addEventListener('keydown', function (event) {
+          if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); sortBy(column); }
+        });
+      });
+    }
+
     // Adds the image name, a status cell and an actions cell to one of Unraid's rows. The actions
     // call the same functions as Unraid's own context menu. Rows are rebuilt on every refresh,
     // so this runs again for each new row.
@@ -7475,13 +7671,51 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/enhance.js <<'AURORA_UNRAID
     // in their saved order, then "Ungrouped"; the containers in each section (and the whole list
     // when there are no groups) in Unraid's order. Runs after every refresh, and moves nothing
     // when the order is already right.
+    // Sorting by a click on a column heading: Application (A to Z inside each group), CPU and
+    // Memory (all containers together, the biggest first). A second click reverses the order.
+    // The order is taken once, at the click (the values change every few seconds and the rows
+    // would never stand still), and new containers go last.
+    let sortState = null;
+    const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+    function sortRows(items) {
+      if (!sortState) return items;
+      const rank = sortState.rank;
+      const place = function (item) { return rank.has(item.name) ? rank.get(item.name) : Number.MAX_SAFE_INTEGER; };
+      return items.slice().sort(function (a, b) { return place(a) - place(b); });
+    }
+    function sortValue(item, column) {
+      if (column === 'name') return item.name;
+      if (column === 'cpu') {
+        const cell = item.row.querySelector('[class^="cpu-"]');
+        return cell ? number(cell.textContent) : 0;
+      }
+      const cell = item.row.querySelector('[class^="mem-"]');
+      const used = String(cell ? cell.textContent : '').split('/')[0].trim().match(/^([\d.,]+)\s*([KMGT]?i?B)$/i);
+      return used ? number(used[1]) * (UNITS[used[2].toUpperCase()] || 1) : 0;
+    }
+    function sortBy(column) {
+      const direction = sortState && sortState.column === column ? -sortState.direction : (column === 'name' ? 1 : -1);
+      const items = [...list.querySelectorAll('td.ct-name:not(.folder-name)')].map(function (cell) { return describe(cell.parentElement); });
+      items.sort(function (a, b) {
+        const x = sortValue(a, column);
+        const y = sortValue(b, column);
+        return direction * (column === 'name' ? collator.compare(x, y) : x - y) || collator.compare(a.name, b.name);
+      });
+      sortState = { column: column, direction: direction, rank: new Map(items.map(function (item, index) { return [item.name, index]; })) };
+      headRow.querySelectorAll('.tp-sort-arrow').forEach(function (arrow) {
+        const own = arrow.parentElement.classList.contains('tp-c-' + column);
+        arrow.textContent = own ? (direction > 0 ? '\u25B2' : '\u25BC') : '';
+      });
+      render();
+    }
+
     function layoutGroups(rows, orphans) {
       const sections = store.groups.map(function (group) {
-        return { key: 'g:' + group.name, group: group, title: group.name, items: rows.filter(function (item) { return group.containers.includes(item.name); }) };
+        return { key: 'g:' + group.name, group: group, title: group.name, items: sortRows(rows.filter(function (item) { return group.containers.includes(item.name); })) };
       });
       const grouped = sections.length > 0;
       if (grouped) {
-        const rest = rows.filter(function (item) { return !store.of(item.name); });
+        const rest = sortRows(rows.filter(function (item) { return !store.of(item.name); }));
         if (rest.length) sections.push({ key: UNGROUPED, group: null, title: 'Ungrouped', items: rest });
       }
       if (orphans.length) sections.push({ key: ORPHANS, group: null, title: 'Orphans', items: orphans, orphans: true });
@@ -7494,7 +7728,7 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/enhance.js <<'AURORA_UNRAID
       });
 
       // Without groups the containers come first, as a plain list.
-      const order = grouped ? [] : rows.map(function (item) { return item.row; });
+      const order = grouped ? [] : sortRows(rows).map(function (item) { return item.row; });
       sections.forEach(function (section, index) {
         const header = groupRow(section.key, section.group);
         header.tpItems = section.items;
@@ -7534,6 +7768,14 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/enhance.js <<'AURORA_UNRAID
           order.push(item.row);
         });
       });
+      // CPU or Memory order: every container in one list, the group headers out of the way.
+      const flat = Boolean(sortState) && sortState.column !== 'name';
+      table.classList.toggle('tp-sort-flat', flat);
+      if (flat && grouped) {
+        order.length = 0;
+        sortRows(rows).forEach(function (item) { item.collapsed = false; order.push(item.row); });
+        orphans.forEach(function (item) { order.push(item.row); });
+      }
       if (!sections.length) return;
       order.forEach(function (node, index) {
         if (list.children[index] !== node) list.insertBefore(node, list.children[index] || null);
@@ -10612,7 +10854,7 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/ui-tweaks.js <<'AURORA_UNRA
     let key = node.dataset && node.dataset.tpQa;
     if (!key) {
       const classes = [...node.classList].filter(function (name) {
-        return !/^(nav-item|nav-user|active|hidden|show|hide|open)$/.test(name) && !/^tp-/.test(name);
+        return !/^(nav-item|nav-user|util|active|hidden|show|hide|open)$/.test(name) && !/^tp-/.test(name);
       });
       const anchor = node.querySelector('a[href]');
       const href = (anchor && anchor.getAttribute('href')) || '';
@@ -10632,8 +10874,17 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/ui-tweaks.js <<'AURORA_UNRA
   }
 
   function quickIcon(node) {
-    const icon = node.querySelector('a b, a i, a svg');
+    const icon = node.querySelector('a b, a i, a svg, a img');
     return icon ? icon.cloneNode(true) : null;
+  }
+
+  // Whether the menu really shows the button (some plugins add empty entries).
+  function quickShown(node) {
+    const wasHidden = node.classList.contains('tp-qa-hidden');
+    if (wasHidden) node.classList.remove('tp-qa-hidden');
+    const shown = node.offsetWidth > 0 && node.offsetHeight > 0;
+    if (wasHidden) node.classList.add('tp-qa-hidden');
+    return shown;
   }
 
   function applyQuickActions() {
@@ -10674,9 +10925,11 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/ui-tweaks.js <<'AURORA_UNRA
     if (!eyeItem) return;
     eyeItem.classList.toggle('tp-hg-on', state.enabled);
     const icon = eyeItem.querySelector('b');
-    if (icon) icon.innerHTML = state.enabled ? EYE_HIDDEN : EYE_SHOWN;
+    // The picture shows what a click does: the plain eye shows the hidden groups again, the
+    // crossed-out eye hides them.
+    if (icon) icon.innerHTML = state.enabled ? EYE_SHOWN : EYE_HIDDEN;
     const anchor = eyeItem.querySelector('a');
-    anchor.title = state.enabled ? 'Hidden groups (hiding is on)' : 'Hidden groups';
+    anchor.title = state.enabled ? 'Hidden groups are hidden (click to choose or show them)' : 'Hidden groups';
     anchor.setAttribute('aria-label', anchor.title);
   }
 
@@ -10889,7 +11142,8 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/ui-tweaks.js <<'AURORA_UNRA
           if (!key || seen.has(key) || KEEP.has(key)) return;
           seen.add(key);
           const textNode = node.querySelector('.PanelText');
-          found.push({ key: key, label: ((textNode || anchor).textContent || '').replace(/\s+/g, ' ').trim() || key, section: section });
+          const iconNode = node.querySelector('a > span > *');
+          found.push({ key: key, label: ((textNode || anchor).textContent || '').replace(/\s+/g, ' ').trim() || key, section: section, icon: iconNode ? document.importNode(iconNode, true) : null });
         });
         return found;
       });
@@ -10988,6 +11242,51 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/ui-tweaks.js <<'AURORA_UNRA
     document.documentElement.classList.remove('tp-qa-pending');
   }
 
+  // ---------------------------------------------------------------- Docker: ports of routed and host containers
+
+  // Unraid's "LAN IP:Port" is empty for a container routed through another one (qbittorrent
+  // through nordlynx) and shows only the address, with "all", for one on the host network
+  // (Jellyfin, Homebridge). include/docker-ports.php reads their ports from their templates.
+  let dockerPorts = null;
+  let dockerPortsAt = 0;
+  let dockerPortsLoading = false;
+
+  function loadDockerPorts() {
+    if (dockerPortsLoading || (dockerPorts && Date.now() - dockerPortsAt < 60000)) return;
+    dockerPortsLoading = true;
+    fetch(BASE + '/include/docker-ports.php', { credentials: 'same-origin' })
+      .then(function (response) { return response.json(); })
+      .then(function (data) { dockerPorts = data; dockerPortsAt = Date.now(); schedule(); })
+      .catch(function () { dockerPorts = dockerPorts || { host: '', containers: {} }; dockerPortsAt = Date.now(); })
+      .then(function () { dockerPortsLoading = false; });
+  }
+
+  function applyDockerPorts() {
+    if (!/^\/Docker\/?$/.test(location.pathname)) return;
+    const rows = document.querySelectorAll('#docker_list > tr');
+    let wanted = false;
+    rows.forEach(function (row) {
+      const portCell = row.querySelector('td.tp-c-ports');
+      const nameNode = row.querySelector('td.ct-name .appname');
+      if (!portCell || !nameNode || row.dataset.tpPorts) return;
+      wanted = true;
+      if (!dockerPorts) return;
+      const entry = dockerPorts.containers && dockerPorts.containers[nameNode.textContent.trim()];
+      row.dataset.tpPorts = '1';
+      if (!entry || !entry.running || !entry.ports.length) return;
+      const address = dockerPorts.host || (portCell.textContent.match(/\d+\.\d+\.\d+\.\d+/) || [''])[0];
+      if (!address) return;
+      const fill = function (cell, lines) {
+        const box = cell && (cell.querySelector('.docker_readmore') || cell);
+        if (box) box.innerHTML = lines.map(function (line) { return line.replace(/[&<>]/g, ''); }).join('<br>');
+        if (cell) cell.classList.remove('tp-c-empty');
+      };
+      fill(portCell, entry.ports.map(function (port) { return address + ':' + port.host; }));
+      fill(row.querySelector('td.tp-c-cport'), entry.ports.map(function (port) { return port.target + ':' + port.proto.toUpperCase(); }));
+    });
+    if (wanted && !dockerPorts) loadDockerPorts();
+  }
+
   // ---------------------------------------------------------------- Run
 
   function run() {
@@ -10998,6 +11297,7 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/ui-tweaks.js <<'AURORA_UNRA
     applyLogo();
     trimFooter();
     applyApps();
+    applyDockerPorts();
   }
 
   let timer = 0;
@@ -11010,7 +11310,7 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/scripts/ui-tweaks.js <<'AURORA_UNRA
   }
 
   // For the settings page.
-  window.auroraTweaks = { quickItems: quickItems, quickKey: quickKey, quickLabel: quickLabel, quickIcon: quickIcon, fetchPanels: fetchPanels, run: run };
+  window.auroraTweaks = { quickItems: quickItems, quickKey: quickKey, quickLabel: quickLabel, quickIcon: quickIcon, quickShown: quickShown, fetchPanels: fetchPanels, run: run };
 
   try { run(); } catch (error) { console.error('AuroraUnraid:', error); }
   // Unraid's header parts, the Docker list and the Dashboard tiles draw themselves after the page.
@@ -12217,7 +12517,7 @@ a.tp-webui .fa {
 }
 
 :where(:root:not(.tp-fvplus)) #docker_list > tr.folder > td {
-    background-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 8%, transparent);
+    background-color: color-mix(in srgb, var(--tp-text) 4%, transparent);
 }
 
 :where(:root:not(.tp-fvplus)) #docker_list > tr.folder > td:first-child {
@@ -12235,7 +12535,7 @@ a.tp-webui .fa {
 }
 
 :where(:root:not(.tp-fvplus)) #docker_list > tr.folder-element > td {
-    background-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 4%, transparent);
+    background-color: color-mix(in srgb, var(--tp-text) 4%, transparent);
 }
 
 :where(:root:not(.tp-fvplus)) #docker_list > tr.folder-element > td:first-child {
@@ -12258,7 +12558,7 @@ a.tp-webui .fa {
 
 :where(:root:not(.tp-fvplus)) table.dashboard span.outer.solid[class*="folder-docker"] {
     border-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 45%, transparent);
-    background-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 10%, var(--tp-subtle, transparent));
+    background-color: var(--tp-subtle, transparent);
 }
 
 :where(:root:not(.tp-fvplus)) table.dashboard .folder-showcase:not(:empty) {
@@ -12269,7 +12569,7 @@ a.tp-webui .fa {
     padding: 0.8rem;
     border: 1px solid color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 30%, transparent);
     border-radius: 12px;
-    background-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 5%, transparent);
+    background-color: color-mix(in srgb, var(--tp-text) 4%, transparent);
 }
 
 /* Dashboard, Docker tile without FolderView: the theme's application groups. A chip like the
@@ -12278,7 +12578,7 @@ a.tp-webui .fa {
 table.dashboard span.outer.solid.tp-group-chip {
     cursor: pointer;
     border-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 45%, transparent);
-    background-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 10%, var(--tp-subtle, transparent));
+    background-color: var(--tp-subtle, transparent);
 }
 
 table.dashboard span.outer.solid.tp-group-chip:focus-visible {
@@ -12295,7 +12595,7 @@ table.dashboard span.outer.solid.tp-group-chip:focus-visible {
     border-radius: 10px;
     color: var(--tp-primary, var(--brand-orange));
     font-size: 1.7rem;
-    background: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 16%, transparent);
+    background: var(--tp-icon-tile, color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 16%, transparent));
 }
 
 table.dashboard span.outer.solid.tp-group-chip .inner {
@@ -12338,7 +12638,7 @@ table.dashboard .tp-group-panel {
     padding: 0.8rem;
     border: 1px solid color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 30%, transparent);
     border-radius: 12px;
-    background-color: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 5%, transparent);
+    background-color: color-mix(in srgb, var(--tp-text) 4%, transparent);
 }
 
 table.dashboard .tp-group-panel[hidden] {
@@ -15362,7 +15662,7 @@ tbody.tp-cpu-tile > tr.tp-core span.w26 {
     border-radius: 4px;
     color: var(--tp-primary, var(--brand-orange));
     font: 700 0.9rem/1.2 var(--tp-font-heading, inherit);
-    background: color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 14%, transparent);
+    background: var(--tp-icon-tile, color-mix(in srgb, var(--tp-primary, var(--brand-orange)) 14%, transparent));
 }
 
 tbody.tp-cpu-tile > tr.tp-core span.w72 {
@@ -16950,6 +17250,406 @@ label.tft-panels-heading input {
     height: 1.8rem;
     margin: 0;
     accent-color: var(--tp-primary, var(--brand-orange));
+}
+
+/* ======================================================================
+   Settings page: tab bar, one card per tab, rows, switches, tiles
+   ====================================================================== */
+nav.tft-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin: 0 0 2rem;
+    padding: 0.8rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 16px;
+    background: var(--tp-elevated, var(--mild-background-color));
+    box-shadow: none;
+}
+
+nav.tft-tabs button.tft-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    margin: 0;
+    padding: 1rem 1.6rem;
+    border: 1px solid transparent;
+    border-radius: 12px;
+    color: var(--tp-muted, var(--alt-text-color));
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    background: transparent;
+    box-shadow: none;
+    cursor: pointer;
+}
+
+nav.tft-tabs button.tft-tab:hover {
+    color: var(--tp-text, var(--text-color));
+    background: var(--tp-subtle, transparent);
+}
+
+nav.tft-tabs button.tft-tab.tft-tab-on {
+    color: var(--tp-primary-text, #fff);
+    background: var(--tp-primary, var(--brand-orange));
+    box-shadow: 0 0 18px color-mix(in srgb, var(--tp-primary, #4f8bff) 35%, transparent);
+}
+
+.tft-tab-icon,
+.tft-pane-icon {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+}
+
+.tft-tab-icon svg {
+    width: 1.6rem;
+    height: 1.6rem;
+}
+
+.tft-pane {
+    margin: 0 0 2rem;
+    padding: 2.4rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 16px;
+    background: var(--tp-elevated, var(--mild-background-color));
+}
+
+.tft-pane[hidden] {
+    display: none !important;
+}
+
+.tft-pane-head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 2rem;
+    padding: 0 0 1.6rem;
+    border-bottom: 1px solid var(--tp-border, var(--border-color));
+}
+
+.tft-pane-icon {
+    color: var(--tp-primary, var(--brand-orange));
+}
+
+.tft-pane-icon svg {
+    width: 2rem;
+    height: 2rem;
+}
+
+.tft-pane-head h2 {
+    margin: 0;
+    padding: 0;
+    color: var(--tp-text, var(--text-color));
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.tft-pane-sub {
+    margin-left: auto;
+    color: var(--tp-muted, var(--alt-text-color));
+    font-size: 1.2rem;
+}
+
+/* Setting rows: the label on the left, the control on the right. */
+.tft-pane dl {
+    display: grid;
+    grid-template-columns: minmax(18rem, 28%) minmax(0, 1fr);
+    align-items: center;
+    gap: 1.6rem;
+    margin: 0 0 0.8rem;
+    padding: 1.2rem 1.4rem;
+    border-radius: 12px;
+    background: var(--tp-subtle, transparent);
+}
+
+.tft-pane dl dt {
+    float: none;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    text-align: left;
+    color: var(--tp-text, var(--text-color));
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.tft-pane dl dd {
+    margin: 0 !important;
+    padding: 0;
+}
+
+.tft-pane dl:has(.tft-tiles),
+.tft-pane dl:has(.tft-sortlist) {
+    grid-template-columns: minmax(0, 1fr);
+    background: transparent;
+    padding-left: 0;
+    padding-right: 0;
+}
+
+.tft-pane dl:has(.tft-tiles) > dt,
+.tft-pane dl:has(.tft-sortlist) > dt {
+    display: none;
+}
+
+.tft-pane blockquote.inline_help {
+    margin: 0 0 1.2rem;
+    padding: 0 1.4rem;
+    color: var(--tp-muted, var(--alt-text-color));
+    font-size: 1.2rem;
+}
+
+.tft-pane select,
+.tft-pane input[type="text"],
+.tft-pane input[type="search"] {
+    box-sizing: border-box;
+    min-width: 0;
+    padding: 0.9rem 1.2rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 10px;
+    color: var(--tp-text, var(--text-color));
+    background-color: var(--tp-bg, transparent);
+}
+
+/* Every checkbox of the cards is a switch. */
+.tft-pane input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    position: relative;
+    flex: none;
+    width: 3.6rem;
+    height: 2rem;
+    margin: 0;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--tp-text, #fff) 12%, transparent);
+    cursor: pointer;
+    transition: background-color 0.15s, border-color 0.15s;
+}
+
+.tft-pane input[type="checkbox"]::after {
+    content: "";
+    position: absolute;
+    top: 0.2rem;
+    left: 0.2rem;
+    width: 1.4rem;
+    height: 1.4rem;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+    transition: transform 0.15s;
+}
+
+.tft-pane input[type="checkbox"]:checked {
+    border-color: var(--tp-primary, var(--brand-orange));
+    background: var(--tp-primary, var(--brand-orange));
+}
+
+.tft-pane input[type="checkbox"]:checked::after {
+    transform: translateX(1.6rem);
+}
+
+.tft-pane input[type="checkbox"]:indeterminate {
+    border-color: var(--tp-primary, var(--brand-orange));
+    background: color-mix(in srgb, var(--tp-primary, #4f8bff) 45%, transparent);
+}
+
+.tft-pane input[type="checkbox"]:indeterminate::after {
+    transform: translateX(0.8rem);
+}
+
+.tft-pane .tft-check.tft-check-inline {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.9rem 1.2rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 10px;
+    color: var(--tp-text, var(--text-color));
+    background: var(--tp-bg, transparent);
+}
+
+.tft-pane .tft-toggles {
+    max-width: none;
+}
+
+/* Quick Actions: two columns of rows */
+.tft-sortlist {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(34rem, 1fr));
+    gap: 0.8rem;
+    max-width: none;
+}
+
+.tft-sort-row {
+    background: var(--tp-bg, transparent);
+}
+
+.tft-sort-icon {
+    width: 3.2rem;
+    height: 3.2rem;
+    border-radius: 9px;
+    color: var(--tp-primary, var(--brand-orange));
+    background: var(--tp-icon-tile, var(--tp-subtle));
+}
+
+.tft-sort-icon img {
+    max-width: 2rem;
+    max-height: 2rem;
+}
+
+/* Settings and Tools tiles */
+.tft-tilebar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 2rem;
+    padding: 1rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 14px;
+    background: var(--tp-bg, transparent);
+}
+
+.tft-segment {
+    display: inline-flex;
+    padding: 0.3rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 11px;
+    background: var(--tp-subtle, transparent);
+}
+
+.tft-segment button {
+    margin: 0;
+    padding: 0.7rem 1.4rem;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    color: var(--tp-muted, var(--alt-text-color));
+    font-size: 1.2rem;
+    font-weight: 700;
+    background: transparent;
+    cursor: pointer;
+}
+
+.tft-segment button.tft-on {
+    color: var(--tp-primary, var(--brand-orange));
+    border-color: color-mix(in srgb, var(--tp-primary, #4f8bff) 40%, transparent);
+    background: var(--tp-primary-soft, transparent);
+}
+
+input.tft-tilesearch {
+    flex: 1;
+    min-width: 18rem;
+    max-width: 36rem;
+    margin: 0;
+}
+
+button.tft-mini {
+    margin: 0;
+    padding: 0.8rem 1.4rem;
+    min-width: 0;
+    font-size: 1.2rem;
+}
+
+.tft-tilegroup {
+    margin: 0 0 2.4rem;
+}
+
+.tft-tilegroup[hidden],
+.tft-tile[hidden] {
+    display: none !important;
+}
+
+.tft-tilegroup-head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 1.2rem;
+    padding: 0 0 1rem;
+    border-bottom: 1px solid var(--tp-border, var(--border-color));
+    cursor: pointer;
+}
+
+.tft-tilegroup-name {
+    color: var(--tp-text, var(--text-color));
+    font-size: 1.2rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.tft-tilegroup-kind {
+    margin-left: auto;
+    color: var(--tp-muted, var(--alt-text-color));
+    font-size: 1.1rem;
+}
+
+.tft-tilegrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(25rem, 1fr));
+    gap: 0.8rem;
+}
+
+.tft-tile {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    margin: 0;
+    padding: 1rem 1.2rem;
+    border: 1px solid var(--tp-border, var(--border-color));
+    border-radius: 12px;
+    background: var(--tp-subtle, transparent);
+    cursor: pointer;
+    transition: border-color 0.15s;
+}
+
+.tft-tile:hover {
+    border-color: var(--tp-primary, var(--brand-orange));
+}
+
+.tft-tile-icon {
+    display: grid;
+    flex: none;
+    place-items: center;
+    width: 3.6rem;
+    height: 3.6rem;
+    border-radius: 10px;
+    color: var(--tp-primary, var(--brand-orange));
+    font-size: 1.8rem;
+    background: var(--tp-icon-tile, var(--tp-subtle));
+}
+
+.tft-tile-icon img {
+    max-width: 2.2rem;
+    max-height: 2.2rem;
+}
+
+.tft-tile-icon i,
+.tft-tile-icon b {
+    margin: 0;
+    font-size: 1.8rem;
+}
+
+.tft-tile-name {
+    flex: 1;
+    min-width: 0;
+    color: var(--tp-text, var(--text-color));
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+@media (max-width: 760px) {
+    .tft-pane dl {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0.8rem;
+    }
+
+    .tft-pane-sub {
+        display: none;
+    }
 }
 AURORA_UNRAID_EOF
 cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/stats.css <<'AURORA_UNRAID_EOF'
@@ -18555,7 +19255,7 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/theme.css <<'AURORA_UNRAID_E
         border-radius: var(--tp-r-md);
         color: var(--tp-primary);
         font-size: 2.2rem !important;
-        background-color: var(--tp-primary-soft);
+        background-color: var(--tp-icon-tile, var(--tp-primary-soft));
     }
 
     table.dashboard .tile-header-main {
@@ -19243,7 +19943,7 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/theme.css <<'AURORA_UNRAID_E
 
     /* Pool name rows stand out a little; totals rows close each group. */
     table.disk_status tr.pool_header > td {
-        background-color: color-mix(in srgb, var(--tp-primary) 5%, transparent);
+        background-color: color-mix(in srgb, var(--tp-text) 4%, transparent);
     }
 
     /* Divider between two pools: Unraid puts it in a header row, which must not take the
@@ -20577,7 +21277,7 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/theme.css <<'AURORA_UNRAID_E
             padding-top: 1.2rem;
             color: var(--tp-primary);
             font: 600 1.3rem var(--tp-font-heading);
-            background-color: color-mix(in srgb, var(--tp-primary) 6%, transparent);
+            background-color: color-mix(in srgb, var(--tp-text) 4%, transparent);
         }
     }
 
@@ -21606,7 +22306,7 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/theme.css <<'AURORA_UNRAID_E
         color: color-mix(in srgb, var(--tp-text) 82%, var(--tp-muted));
         font-size: 1.3rem;
         line-height: 1.65;
-        background: color-mix(in srgb, var(--tp-primary) 6%, var(--tp-elevated));
+        background: var(--tp-elevated);
     }
 
     blockquote:where(:not(.unapi *))::before {
@@ -21772,7 +22472,7 @@ cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/theme.css <<'AURORA_UNRAID_E
         border: 1px solid color-mix(in srgb, var(--tp-primary) 28%, transparent);
         border-radius: 12px;
         color: var(--tp-text);
-        background: color-mix(in srgb, var(--tp-primary) 7%, var(--tp-elevated));
+        background: var(--tp-elevated);
     }
 
     .tp-tool-text p.tp-callout::before {
@@ -23650,6 +24350,79 @@ button.tp-ca-toggle svg {
     background: transparent !important;
     box-shadow: none !important;
 }
+
+/* ---- Colours: the cards, the windows inside them and the icon tiles keep fixed colours. The
+   accent colour from the settings only colours icons, text, buttons and toggles. */
+:root {
+    --tp-icon-tile: #262f45;
+}
+
+:root.Theme--white {
+    --tp-icon-tile: #e2e8f6;
+}
+
+/* Dashboard cards: #12151d, like the Plugins page. Unraid's own styles painted them grey. */
+:root:root table.dashboard > tbody {
+    background: var(--tp-elevated) !important;
+}
+
+:root:root table.dashboard > tbody > tr,
+:root:root table.dashboard > tbody > tr > td {
+    background-color: transparent !important;
+    background-image: none !important;
+}
+
+/* The windows inside the cards: the apps with their status lights, the processor loads, ... */
+:root:root table.dashboard span.outer.solid:not(.tp-group-chip),
+:root:root table.dashboard .tp-group-panel span.outer.solid {
+    background: var(--tp-subtle) !important;
+}
+
+/* Icon tiles at the top of each card. */
+:root:root table.dashboard .tile-header-left > i.f32 {
+    background: var(--tp-icon-tile) !important;
+}
+
+/* ---- The lock button: grey like the other icons; red while the Dashboard can be edited */
+.nav-tile.right .nav-item.LockButton b.green-text {
+    color: inherit !important;
+}
+
+.nav-tile.right .nav-item.LockButton b.red-text {
+    color: var(--tp-danger, #ef4444) !important;
+}
+
+/* ---- Docker tab: clickable headings, no reset button, group icons only while a group is closed */
+#resetsort {
+    display: none !important;
+}
+
+th.tp-sortable {
+    cursor: pointer;
+    user-select: none;
+}
+
+th.tp-sortable:hover {
+    color: var(--tp-text);
+}
+
+.tp-sort-arrow {
+    display: inline-block;
+    margin-left: 0.6rem;
+    color: var(--tp-primary);
+    font-size: 0.9em;
+}
+
+/* Sorted by CPU or memory: all containers in one list, so the group headers are hidden. */
+table.tp-sort-flat tr.tp-group {
+    display: none !important;
+}
+
+/* The icons in a group's header only help while the group is closed. */
+tr.tp-group:not(.tp-collapsed) .tp-group-apps,
+table.dashboard span.outer.solid.tp-group-chip:not(.tp-collapsed) .tp-group-apps {
+    display: none !important;
+}
 AURORA_UNRAID_EOF
 cat > /usr/local/emhttp/plugins/AuroraUnraid/styles/updated.css <<'AURORA_UNRAID_EOF'
 /* "AuroraUnraid updated" dialog (scripts/updated.js). Loaded only after an update, also with
@@ -23980,7 +24753,7 @@ cat > /boot/config/plugins/AuroraUnraid/stats.cron <<'AURORA_UNRAID_EOF'
 AURORA_UNRAID_EOF
 /usr/bin/php /usr/local/emhttp/plugins/AuroraUnraid/scripts/schedule.php
 echo ""
-echo "AuroraUnraid 2026.10.30.0956 is installed."
+echo "AuroraUnraid 2026.10.31.0313 is installed."
 echo "Settings: Settings > User Utilities > AuroraUnraid"
 echo ""
 ]]>
