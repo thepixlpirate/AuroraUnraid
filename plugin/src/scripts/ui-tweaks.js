@@ -71,6 +71,9 @@
 
   // Whether the menu really shows the button (some plugins add empty entries).
   function quickShown(node) {
+    // Disk Viewer and Stream Viewer add a dummy button here and show their own badge in the
+    // header instead (they hide the dummy a moment after the page loads).
+    if (node.matches('.DiskViewerButton, .StreamViewerButton')) return false;
     const wasHidden = node.classList.contains('tp-qa-hidden');
     if (wasHidden) node.classList.remove('tp-qa-hidden');
     const shown = node.offsetWidth > 0 && node.offsetHeight > 0;
