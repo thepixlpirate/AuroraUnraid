@@ -145,6 +145,8 @@ plg = f"""<?xml version='1.0' standalone='yes'?>
 
 <CHANGES>
 ###{version}
+- Docker tab: an LED beside each name (green running, red stopped, orange paused, a yellow turning ring while a container starts, stops or restarts).
+- Fixed: the switches on the settings page; the accent no longer colours the outline of the group panels on the Dashboard; the Disk Viewer card follows the theme colours.
 - Settings page redesigned: tabs with icons, a card per tab, switches, tile cards with Unraid's own icons for the Settings and Tools pages (filter, all on / all off, one switch per category).
 - Fixed: Quick Actions and the Settings / Tools tile switches were not saved (Apply stayed off); buttons nobody sees (Disk Viewer, Active Streams) are no longer listed.
 - Dashboard: cards #12151d, the windows inside them #161a23, icon tiles #262f45, the same on every page; the accent colour no longer tints backgrounds.

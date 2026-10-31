@@ -295,3 +295,67 @@ tr.tp-group:not(.tp-collapsed) .tp-group-apps,
 table.dashboard span.outer.solid.tp-group-chip:not(.tp-collapsed) .tp-group-apps {
     display: none !important;
 }
+
+/* ---- Dashboard: the border of the group panels stays neutral (the accent is for icons, text,
+   buttons and toggles, not for the outline of a card). */
+:root:root table.dashboard .tp-group-panel,
+:root:root table.dashboard span.outer.tp-group-chip {
+    border-color: var(--tp-border) !important;
+}
+
+/* ---- Disk Viewer (a plugin with its own colours): its rows and header follow the cards. */
+:root:root:root {
+    --dv-c-bg-sticky: var(--tp-subtle) !important;
+    --dv-row-odd: var(--tp-subtle) !important;
+    --dv-row-even: var(--tp-elevated) !important;
+    --dv-c-bg: color-mix(in srgb, var(--tp-text) 4%, transparent) !important;
+    --dv-c-bg-summary: color-mix(in srgb, var(--tp-text) 6%, transparent) !important;
+    --dv-c-border: var(--tp-border) !important;
+    --dv-c-border-subtle: color-mix(in srgb, var(--tp-border) 60%, transparent) !important;
+}
+
+/* ---- Docker tab: an LED beside the name. Green: running, red: stopped, orange: paused, yellow
+   and turning: starting, stopping or restarting. It follows Unraid's own state icon (hidden by
+   the compact list), which turns into a spinner while Unraid works on the container. */
+#docker_containers.tp-compact td.ct-name .inner > .appname::before {
+    content: "";
+    display: inline-block;
+    box-sizing: border-box;
+    flex: none;
+    width: 1rem;
+    height: 1rem;
+    margin-right: 0.8rem;
+    border-radius: 50%;
+    vertical-align: baseline;
+    background-color: var(--tp-danger, #ef4444);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--tp-danger, #ef4444) 70%, transparent);
+}
+
+#docker_containers.tp-compact td.ct-name .inner:has(> i.started) > .appname::before {
+    background-color: var(--tp-success, #22c55e);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--tp-success, #22c55e) 70%, transparent);
+}
+
+#docker_containers.tp-compact td.ct-name .inner:has(> i.paused) > .appname::before {
+    background-color: var(--tp-warn, #f59e0b);
+    box-shadow: 0 0 6px color-mix(in srgb, var(--tp-warn, #f59e0b) 70%, transparent);
+}
+
+#docker_containers.tp-compact td.ct-name .inner:has(> i.fa-spin) > .appname::before {
+    width: 1.2rem;
+    height: 1.2rem;
+    border: 2px solid #facc15;
+    border-top-color: transparent;
+    background-color: transparent;
+    box-shadow: none;
+    animation: tp-led-spin 0.8s linear infinite;
+}
+
+#docker_containers.tp-compact tr:has(td.ct-name .inner > i.fa-spin) .tp-c-status .tp-pill {
+    color: #facc15;
+    background-color: color-mix(in srgb, #facc15 14%, transparent);
+}
+
+@keyframes tp-led-spin {
+    to { transform: rotate(360deg); }
+}
